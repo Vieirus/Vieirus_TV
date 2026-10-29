@@ -7,6 +7,10 @@ import './programme-guide.css';
 import './grid-guide.css';
 import './settings.css';
 
+(window as unknown as { __tvStarted?: boolean }).__tvStarted = true;
+const bootNote = document.getElementById('tv-boot');
+if (bootNote && bootNote.parentNode) bootNote.parentNode.removeChild(bootNote);
+
 const root = document.getElementById('app');
 
 if (!root) {
