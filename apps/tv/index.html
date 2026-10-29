@@ -9,17 +9,30 @@
             // donc il peut afficher une erreur de syntaxe du bundle lui-meme.
             (function () {
                 function show(text) {
+                    var host = document.getElementById('tv-diag');
+                    if (!host) {
+                        host = document.createElement('div');
+                        host.id = 'tv-diag';
+                        host.style.cssText =
+                            'position:fixed;top:0;left:0;right:0;z-index:2147483647;max-height:100%;overflow:hidden;';
+                        (document.body || document.documentElement).appendChild(
+                            host
+                        );
+                    }
                     var pre = document.createElement('pre');
                     pre.style.cssText =
-                        'position:fixed;top:0;left:0;right:0;z-index:2147483647;margin:0;padding:24px;background:#b00020;color:#fff;font:22px monospace;white-space:pre-wrap;';
+                        'margin:0 0 4px 0;padding:16px;background:#b00020;color:#fff;font:20px monospace;white-space:pre-wrap;';
                     pre.appendChild(document.createTextNode(text));
-                    (document.body || document.documentElement).appendChild(
-                        pre
-                    );
+                    host.appendChild(pre);
                 }
                 window.addEventListener(
                     'error',
                     function (e) {
+                        var t = e.target;
+                        if (t && t !== window && (t.src || t.href)) {
+                            show('FICHIER NON CHARGE : ' + (t.src || t.href));
+                            return;
+                        }
                         show(
                             'ERREUR JS\n' +
                                 e.message +
