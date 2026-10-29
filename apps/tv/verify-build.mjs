@@ -19,6 +19,20 @@ assert.doesNotMatch(
     code,
     /\bglobalThis\b|Object\.fromEntries|\.flatMap\(|\.replaceAll\(|Promise\.allSettled/
 );
+// Information seulement : regex que Chromium 53 ne sait pas lire. Celles
+// construites avec new RegExp(...) sont reecrites au demarrage par
+// polyfills.ts ; une regex litterale non convertie ferait echouer le script.
+const regexRisks = [...code.matchAll(/\\p\{|\\P\{|\(\?<[=!]|\(\?<[A-Za-z_]/g)];
+console.log(`Regex a risque pour Chromium 53 : ${regexRisks.length}`);
+for (const m of regexRisks.slice(0, 8)) {
+    console.log(
+        '  ...' +
+            code
+                .slice(Math.max(0, m.index - 50), m.index + 70)
+                .replace(/\s+/g, ' ') +
+            '...'
+    );
+}
 const app = JSON.parse(readFileSync(`${base}/appinfo.json`, 'utf8'));
 assert.equal(app.disableBackHistoryAPI, true);
 assert.equal(app.main, 'index.html');
