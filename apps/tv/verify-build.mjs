@@ -12,7 +12,9 @@ const scripts = readdirSync(`${base}/assets`).filter((file) =>
 );
 assert.equal(scripts.length, 1, 'TV must ship one classic JavaScript bundle');
 const code = readFileSync(`${base}/assets/${scripts[0]}`, 'utf8');
-parser.parse(code, { ecmaVersion: 2018 });
+// Chromium 53 (webOS 4.x) parses ES2016 only: no async/await, object spread,
+// optional chaining or trailing commas in parameter lists.
+parser.parse(code, { ecmaVersion: 2016 });
 assert.doesNotMatch(
     code,
     /\bglobalThis\b|Object\.fromEntries|\.flatMap\(|\.replaceAll\(|Promise\.allSettled/
@@ -21,5 +23,5 @@ const app = JSON.parse(readFileSync(`${base}/appinfo.json`, 'utf8'));
 assert.equal(app.disableBackHistoryAPI, true);
 assert.equal(app.main, 'index.html');
 console.log(
-    `Verified classic deferred TV bundle, ES2018 syntax and unsupported-builtin scan (${Buffer.byteLength(code)} bytes). This is not a Chromium 68 or device runtime test.`
+    `Verified classic deferred TV bundle, ES2016 syntax and unsupported-builtin scan (${Buffer.byteLength(code)} bytes). This is not a Chromium 68 or device runtime test.`
 );
