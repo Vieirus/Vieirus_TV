@@ -163,7 +163,7 @@ export function Sources({ tv }: { tv: TvModel }) {
                             Password
                             <input
                                 name="password"
-                                type="password"
+                                type="text"
                                 required={type === 'xtream'}
                                 defaultValue={editing?.password}
                                 autoComplete="off"

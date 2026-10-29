@@ -4,66 +4,6 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <title>IPTVnator TV</title>
-        <script>
-            // Diagnostic ES5 pour TV webOS 4 : s'execute avant le bundle,
-            // donc il peut afficher une erreur de syntaxe du bundle lui-meme.
-            (function () {
-                function show(text) {
-                    var host = document.getElementById('tv-diag');
-                    if (!host) {
-                        host = document.createElement('div');
-                        host.id = 'tv-diag';
-                        host.style.cssText =
-                            'position:fixed;top:0;left:0;right:0;z-index:2147483647;max-height:100%;overflow:hidden;';
-                        (document.body || document.documentElement).appendChild(
-                            host
-                        );
-                    }
-                    var pre = document.createElement('pre');
-                    pre.style.cssText =
-                        'margin:0 0 4px 0;padding:16px;background:#b00020;color:#fff;font:20px monospace;white-space:pre-wrap;';
-                    pre.appendChild(document.createTextNode(text));
-                    host.appendChild(pre);
-                }
-                window.addEventListener(
-                    'error',
-                    function (e) {
-                        var t = e.target;
-                        if (t && t !== window && (t.src || t.href)) {
-                            show('FICHIER NON CHARGE : ' + (t.src || t.href));
-                            return;
-                        }
-                        show(
-                            'ERREUR JS\n' +
-                                e.message +
-                                '\n' +
-                                (e.filename || '') +
-                                ':' +
-                                (e.lineno || '') +
-                                ':' +
-                                (e.colno || '')
-                        );
-                    },
-                    true
-                );
-                document.addEventListener('DOMContentLoaded', function () {
-                    var boot = document.createElement('div');
-                    boot.id = 'tv-boot';
-                    boot.style.cssText =
-                        'position:fixed;bottom:0;left:0;z-index:2147483646;background:#0a6;color:#fff;font:24px monospace;padding:12px;';
-                    boot.appendChild(
-                        document.createTextNode('HTML OK - chargement du script...')
-                    );
-                    document.body.appendChild(boot);
-                });
-                setTimeout(function () {
-                    if (!window.__tvStarted)
-                        show(
-                            "Le script de l'app n'a pas demarre.\nLe HTML est charge, mais le fichier JS est absent ou invalide."
-                        );
-                }, 4000);
-            })();
-        </script>
     </head>
     <body>
         <div id="app"></div>

@@ -63,11 +63,11 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-size: 23px;
+    font-size: calc(23px * var(--tv-text-scale));
 }
 .programme-guide-row time,
 .programme-guide-row small {
-    font-size: 16px;
+    font-size: calc(16px * var(--tv-text-scale));
     color: var(--tv-muted);
 }
 .programme-guide-row small {
@@ -81,7 +81,7 @@
     border-color: transparent;
 }
 .programme-guide-details h2 {
-    font-size: 38px;
+    font-size: calc(38px * var(--tv-text-scale));
     line-height: 1.2;
     margin: 18px 0;
 }
@@ -97,17 +97,17 @@
         padding: 28px 32px;
     }
     .programme-guide-header h1 {
-        font-size: 32px;
+        font-size: calc(32px * var(--tv-text-scale));
     }
     .programme-guide-days button {
-        font-size: 18px;
+        font-size: calc(18px * var(--tv-text-scale));
         padding: 12px;
     }
     .programme-guide-body {
         grid-gap: 24px;
     }
     .programme-guide-details h2 {
-        font-size: 30px;
+        font-size: calc(30px * var(--tv-text-scale));
     }
 }
 .programme-guide-header h1 {
