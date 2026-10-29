@@ -41,7 +41,10 @@ export function useUserData(
         }
     }
     useEffect(() => {
-        void retryStorage();
+    console.log('VIEIRUSTV: initialisation du stockage');
+    void retryStorage().then(() => {
+        console.log('VIEIRUSTV: fin du chargement du stockage');
+    });
         player.current = new NativePlayer(
             video.current!,
             (p) =>

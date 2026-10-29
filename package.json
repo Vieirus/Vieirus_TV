@@ -346,6 +346,23 @@
             "app-builder-lib@26.15.7": "patches/app-builder-lib@26.15.7.patch",
             "vite@8.1.5": "patches/vite@8.1.5.patch",
             "mpegts.js@1.8.2": "patches/mpegts.js@1.8.2.patch"
-        }
+        },
+        "ignoredBuiltDependencies": [
+            "@parcel/watcher",
+            "@swc/core",
+            "better-sqlite3",
+            "cpu-features",
+            "electron-winstaller",
+            "esbuild",
+            "less",
+            "lmdb",
+            "msgpackr-extract",
+            "ssh2",
+            "unrs-resolver"
+        ],
+        "onlyBuiltDependencies": [
+            "@webos-tools/cli",
+            "nx"
+        ]
     }
 }

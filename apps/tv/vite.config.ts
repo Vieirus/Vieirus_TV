@@ -54,8 +54,8 @@ export default defineConfig({
     build: {
         outDir: '../../dist/apps/tv',
         emptyOutDir: true,
-        target: ['chrome68', 'es2018'],
-        cssTarget: 'chrome68',
+        target: ['chrome53'],
+        cssTarget: 'chrome53',
         modulePreload: false,
         rollupOptions: {
             output: { format: 'iife' },
