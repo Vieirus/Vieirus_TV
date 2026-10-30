@@ -11,10 +11,11 @@ export function BackendConnection({
     const b = tv.backend;
     return (
         <section class="backend-connection" aria-label="Backend connection">
-            <h2>Connect your home server</h2>
+            <h2>Home server (optional)</h2>
             <p class="muted">
-                Find IPTVnator on your home network, or enter your server
-                address below.
+                Leave the address empty to connect straight to your provider
+                (Xtream login or M3U link). A home server is only needed for
+                Stalker portals or phone setup.
             </p>
             <div
                 class={`connection-status ${b.connected ? 'connected' : ''}`}
@@ -33,7 +34,6 @@ export function BackendConnection({
                     data-focus="backend:url"
                     name="backend"
                     type="url"
-                    required
                     value={b.url}
                     onInput={(event) => b.editUrl(event.currentTarget.value)}
                     placeholder="http://your-server:3333"

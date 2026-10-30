@@ -58,7 +58,10 @@ export function Sources({ tv }: { tv: TvModel }) {
                     : {}),
             };
             setSaving(true);
-            await tv.saveSource(source, httpUrl(field('backend')));
+            await tv.saveSource(
+                source,
+                field('backend') ? httpUrl(field('backend')) : ''
+            );
         } catch {
             setFailure(
                 'Check the URL fields. Use HTTP or HTTPS addresses without embedded login credentials.'

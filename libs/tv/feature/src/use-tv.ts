@@ -335,9 +335,13 @@ export function useTv(video: { current: HTMLVideoElement | null }) {
     }
     async function saveSource(source: Source, address: string) {
         try {
-            if (!(await backend.connect(address))) return;
+            // Empty address = direct mode: no home server, the TV talks to the provider.
+            if (address) {
+                if (!(await backend.connect(address))) return;
+            }
             await update((d) => ({
                 ...d,
+                ...(address ? {} : { backend: '', backendToken: '' }),
                 sources: [
                     ...d.sources.filter((s) => s.id !== source.id),
                     source,

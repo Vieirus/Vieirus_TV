@@ -43,12 +43,19 @@ export function useProvider(
 
         callbacks.current.reset();
         provider.current?.dispose();
-        if (!storageReady || !active || !data.backend) {
+        if (!storageReady || !active) {
             setBusy(false);
             return;
         }
         const abort = new AbortController();
         const snapshot = { ...active };
+        if (!data.backend && active.provider === 'stalker') {
+            callbacks.current.report(
+                'Stalker portals need a home server. Use an Xtream login or an M3U link.'
+            );
+            setBusy(false);
+            return;
+        }
         const client = createProvider(
             snapshot,
             new ProviderTransport(data.backend, data.backendToken),
@@ -105,6 +112,6 @@ export function useProvider(
         ready: owner.current === connectionKey ? ready : 0,
         busy,
         connectionKey,
-        enabled: storageReady && !!active && !!data.backend,
+        enabled: storageReady && !!active,
     };
 }

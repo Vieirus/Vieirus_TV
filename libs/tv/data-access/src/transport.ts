@@ -1,4 +1,6 @@
+import { normalizeXtreamServerUrl } from '@iptvnator/shared/interfaces';
 import { httpUrl, Source } from '@iptvnator/tv/util';
+import { parseM3u } from './direct-m3u';
 export class ProviderRequestError extends Error {
     constructor(
         readonly status: number,
@@ -10,11 +12,70 @@ export class ProviderRequestError extends Error {
 }
 export class ProviderTransport {
     private targets = new Map<string, string>();
+    /** An empty backend address means: contact the provider directly from this TV. */
+    readonly direct: boolean;
     constructor(
         readonly backend: string,
         private readonly accessToken = ''
     ) {
-        httpUrl(backend);
+        this.direct = !backend;
+        if (!this.direct) httpUrl(backend);
+    }
+    private async fetchDirect(
+        url: string,
+        signal: AbortSignal,
+        asText: boolean
+    ): Promise<unknown> {
+        const controller = new AbortController();
+        const cancel = () => controller.abort();
+        signal.addEventListener('abort', cancel);
+        if (signal.aborted) cancel();
+        const timer = setTimeout(cancel, 35000);
+        try {
+            const response = await fetch(url, {
+                signal: controller.signal,
+                credentials: 'omit',
+            });
+            if (!response.ok) throw new ProviderRequestError(response.status);
+            return asText ? await response.text() : await response.json();
+        } catch (error) {
+            if (error instanceof ProviderRequestError || signal.aborted)
+                throw error;
+            // Browsers hide the reason of a blocked cross-origin request.
+            throw new ProviderRequestError(0);
+        } finally {
+            clearTimeout(timer);
+            signal.removeEventListener('abort', cancel);
+        }
+    }
+    private async requestDirect(
+        source: Source,
+        route: 'xtream' | 'stalker' | 'parse',
+        params: Record<string, string | number>,
+        signal: AbortSignal,
+        endpoint: string
+    ): Promise<unknown> {
+        if (route === 'stalker')
+            throw new Error(
+                'Stalker portals need a home server. Use an Xtream login or an M3U link.'
+            );
+        if (route === 'parse') {
+            const text = (await this.fetchDirect(
+                httpUrl(endpoint),
+                signal,
+                true
+            )) as string;
+            if (text.indexOf('#EXTM3U') < 0 && text.indexOf('#EXTINF') < 0)
+                throw new ProviderRequestError(502, true);
+            return { playlist: parseM3u(text) };
+        }
+        const url = new URL(
+            `${normalizeXtreamServerUrl(httpUrl(endpoint))}/player_api.php`
+        );
+        Object.keys(params).forEach((k) =>
+            url.searchParams.set(k, String(params[k]))
+        );
+        return this.fetchDirect(url.href, signal, false);
     }
     private async json(
         url: string,
@@ -89,6 +150,8 @@ export class ProviderTransport {
         endpoint = source.endpoint ?? source.url,
         repaired = false
     ): Promise<unknown> {
+        if (this.direct)
+            return this.requestDirect(source, route, params, signal, endpoint);
         const targetId = await this.target(endpoint, signal);
         if (signal.aborted) throw new DOMException('Aborted', 'AbortError');
         const query = new URLSearchParams({ targetId });
