@@ -36,9 +36,10 @@
     white-space: nowrap;
 }
 .programme-guide-body {
+    --guide-gap: 44px;
     display: grid;
     grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
-    grid-gap: 44px;
+    grid-gap: var(--guide-gap);
     flex: 1;
     min-height: 0;
 }
@@ -104,7 +105,7 @@
         padding: 12px;
     }
     .programme-guide-body {
-        grid-gap: 24px;
+        --guide-gap: 24px;
     }
     .programme-guide-details h2 {
         font-size: calc(30px * var(--tv-text-scale));
@@ -117,4 +118,20 @@
 }
 .guide-overlay .live-overlay-panel {
     padding: 0;
+}
+
+/* Chromium 53 (webOS 4) has no CSS Grid: two flex columns instead. */
+@supports not (display: grid) {
+    .programme-guide-body {
+        display: flex;
+    }
+    .programme-guide-schedule {
+        flex: 1.1 1 0px;
+        width: 0;
+        margin-right: var(--guide-gap);
+    }
+    .programme-guide-details {
+        flex: 1 1 0px;
+        width: 0;
+    }
 }

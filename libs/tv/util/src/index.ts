@@ -109,6 +109,8 @@ export interface ProviderClient {
     episodes(item: Media, signal: AbortSignal): Promise<Media[]>;
     epg(item: Media, signal: AbortSignal): Promise<Program[]>;
     resolve(item: Media, signal: AbortSignal): Promise<Playback>;
+    /** Optional: warm catalog caches in the background once connected. */
+    prefetch?(): void;
     dispose(): void;
 }
 export interface Progress {

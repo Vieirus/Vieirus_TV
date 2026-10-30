@@ -1,6 +1,7 @@
 import { isLikelyM3uVod } from '@iptvnator/shared/m3u-utils';
 import {
     Catalog,
+    Category,
     CatalogSort,
     sortCatalog,
     catalogTitleMatcher,
@@ -22,6 +23,8 @@ export class M3uProvider implements ProviderClient {
         epg: false,
     };
     private items: Media[] = [];
+    /** Last filtered/sorted view: later pages and repeat visits reuse it. */
+    private view?: { key: string; items: Media[]; categories: Category[] };
     constructor(
         private source: Source,
         private transport: ProviderTransport
@@ -35,6 +38,7 @@ export class M3uProvider implements ProviderClient {
                   {},
                   signal
               )) as { playlist?: { items?: unknown } });
+        this.view = undefined;
         this.items = rows(result.playlist?.items).map((raw) => {
             const url = text(raw.url);
             const kind = isLikelyM3uVod({ url, radio: raw.radio as string })
@@ -62,20 +66,27 @@ export class M3uProvider implements ProviderClient {
         _signal?: AbortSignal,
         sort: CatalogSort = 'recent'
     ): Promise<Catalog> {
-        const all = this.items.filter((i) => i.kind === kind);
-        const categories = Array.from(
-            new Set(all.map((i) => i.category ?? '').filter(Boolean))
-        ).map((id) => ({ id, name: id }));
-        const matchesTitle = catalogTitleMatcher(query);
-        const items = all.filter(
-            (i) =>
-                (!category || i.category === category) && matchesTitle(i.title)
-        );
+        const key = JSON.stringify([kind, category, query, sort]);
+        if (this.view?.key !== key) {
+            const all = this.items.filter((i) => i.kind === kind);
+            const categories = Array.from(
+                new Set(all.map((i) => i.category ?? '').filter(Boolean))
+            ).map((id) => ({ id, name: id }));
+            const matchesTitle = catalogTitleMatcher(query);
+            const items = all.filter(
+                (i) =>
+                    (!category || i.category === category) &&
+                    matchesTitle(i.title)
+            );
+            this.view = {
+                key,
+                items: sortCatalog(items, kind === 'live' ? 'provider' : sort),
+                categories,
+            };
+        }
+        const { items, categories } = this.view;
         return {
-            items: sortCatalog(
-                items,
-                kind === 'live' ? 'provider' : sort
-            ).slice(page * 60, (page + 1) * 60),
+            items: items.slice(page * 60, (page + 1) * 60),
             total: items.length,
             categories,
             page,
@@ -97,5 +108,6 @@ export class M3uProvider implements ProviderClient {
     }
     dispose() {
         this.items = [];
+        this.view = undefined;
     }
 }

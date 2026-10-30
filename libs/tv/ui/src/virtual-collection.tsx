@@ -77,15 +77,26 @@ export function VirtualCollection<T extends { id: string }>({
             );
             if (!first || !element.offsetWidth || !root.clientHeight) return;
             const style = getComputedStyle(grid.current!);
+            // Read the CSS variables the grid rules use: Chromium 53 (webOS 4) has
+            // no CSS Grid, so gridTemplateColumns/rowGap do not exist there.
+            const variable = (name: string) =>
+                parseFloat(style.getPropertyValue(name));
             const columns =
                 layout === 'channels'
                     ? 1
-                    : style.gridTemplateColumns.split(' ').filter(Boolean)
-                          .length;
+                    : variable('--columns') ||
+                      (style.gridTemplateColumns || '')
+                          .split(' ')
+                          .filter(Boolean).length ||
+                      current.windowed.columns;
             const gap =
-                parseFloat(style.rowGap) || (layout === 'channels' ? 9 : 0);
+                variable('--row-gap') ||
+                parseFloat(style.rowGap) ||
+                (layout === 'channels' ? 9 : 0);
             const track =
-                layout === 'episodes' ? parseFloat(style.gridAutoRows) : NaN;
+                layout === 'episodes'
+                    ? variable('--row-height') || parseFloat(style.gridAutoRows)
+                    : NaN;
             const step =
                 (track > 0 ? track : first.getBoundingClientRect().height) +
                 gap;

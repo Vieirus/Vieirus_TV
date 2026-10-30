@@ -433,7 +433,7 @@ header select {
     z-index: 2;
     bottom: 14px;
     left: 16px;
-    background: #0b100fe6;
+    background: rgba(11, 16, 15, 0.9);
     padding: 3px 6px;
     font-size: calc(11px * var(--tv-text-scale));
     letter-spacing: 2px;
@@ -447,15 +447,25 @@ header select {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+/* Title wider than the poster: it scrolls slowly while the card is focused. */
+.poster-card > strong.marquee {
+    text-overflow: clip;
+}
+.poster-card > strong.marquee > span {
+    display: inline-block;
+}
 .poster-card > .muted {
     font-size: calc(15px * var(--tv-text-scale));
     display: block;
     margin-top: 8px;
 }
 .poster-grid {
+    --columns: 6;
+    --col-gap: 24px;
+    --row-gap: 32px;
     display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    grid-gap: 32px 24px;
+    grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
+    grid-gap: var(--row-gap) var(--col-gap);
     padding: 8px 5px;
 }
 .poster-grid .poster-art {
@@ -553,9 +563,12 @@ header select {
     color: var(--tv-accent);
 }
 .station-grid {
+    --columns: 3;
+    --col-gap: 24px;
+    --row-gap: 24px;
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    grid-gap: 24px;
+    grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
+    grid-gap: var(--row-gap) var(--col-gap);
     padding: 6px;
 }
 .channel-card {
@@ -758,9 +771,12 @@ summary {
     margin-left: 20px;
 }
 .episode-grid {
+    --columns: 3;
+    --col-gap: 22px;
+    --row-gap: 22px;
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    grid-gap: 22px;
+    grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
+    grid-gap: var(--row-gap) var(--col-gap);
 }
 .episode {
     padding: 30px;
@@ -792,9 +808,11 @@ main.live-page {
     flex-shrink: 0;
 }
 .live-layout {
+    --live-left: 38%;
+    --live-gap: 42px;
     display: grid;
-    grid-template-columns: 38% minmax(0, 1fr);
-    grid-gap: 42px;
+    grid-template-columns: var(--live-left) minmax(0, 1fr);
+    grid-gap: var(--live-gap);
     flex: 1;
     min-height: 0;
 }
@@ -953,7 +971,7 @@ main.live-page {
     right: 18px;
     z-index: 5;
     font-size: calc(17px * var(--tv-text-scale));
-    background: #17251ee6;
+    background: rgba(23, 37, 30, 0.9);
 }
 .live-information .section-title h2 {
     font-size: calc(26px * var(--tv-text-scale));
@@ -1016,7 +1034,7 @@ main.live-page {
     right: 0;
     top: 0;
     bottom: 0;
-    background: linear-gradient(#0009, transparent 30%, transparent 45%, #000e);
+    background: linear-gradient(rgba(0, 0, 0, 0.6), transparent 30%, transparent 45%, rgba(0, 0, 0, 0.93));
     padding: 54px;
 }
 .player-top {
@@ -1098,14 +1116,14 @@ main.live-page {
         display: none;
     }
     .poster-grid {
-        grid-template-columns: repeat(5, minmax(0, 1fr));
+        --columns: 5;
     }
     .rail > .poster-card {
         min-width: 170px;
         width: 170px;
     }
     .live-layout {
-        grid-gap: 24px;
+        --live-gap: 24px;
     }
     .channel-number {
         display: none;
@@ -1174,7 +1192,7 @@ main.live-page {
         min-width: 0;
     }
     .station-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        --columns: 2;
     }
     .hero {
         padding: 30px;
@@ -1187,14 +1205,14 @@ main.live-page {
         font-size: calc(18px * var(--tv-text-scale));
     }
     .poster-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        --columns: 3;
     }
     .live-layout {
-        grid-template-columns: 42% minmax(0, 1fr);
-        grid-gap: 18px;
+        --live-left: 42%;
+        --live-gap: 18px;
     }
     .episode-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        --columns: 2;
     }
     .source-row button:first-child {
         min-width: 0;
@@ -1336,7 +1354,8 @@ main.live-page {
     margin-bottom: 8px;
 }
 .rich-episodes .episode-grid {
-    grid-auto-rows: 480px;
+    --row-height: 480px;
+    grid-auto-rows: var(--row-height);
     align-items: start;
 }
 .rich-episodes .virtual-collection .episode.with-still {
@@ -1458,4 +1477,53 @@ main.live-page {
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+}
+
+/*
+ * Chromium 53 (LG webOS 4, 2018-2019 TVs) has no CSS Grid (arrived in 57) and no
+ * flex `gap` (84). Lay the same boxes out with flexbox and margins, driven by the
+ * same --columns / --*-gap variables the grid rules above use.
+ */
+@supports not (display: grid) {
+    .poster-grid,
+    .station-grid,
+    .episode-grid {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: stretch;
+        margin-left: calc(var(--col-gap) / -2);
+        margin-right: calc(var(--col-gap) / -2);
+    }
+    .poster-grid > *,
+    .station-grid > *,
+    .episode-grid > * {
+        box-sizing: border-box;
+        flex: 0 0 auto;
+        width: calc(100% / var(--columns) - var(--col-gap) - 0.5px);
+        margin: 0 calc(var(--col-gap) / 2) var(--row-gap);
+    }
+    .rich-episodes .episode-grid {
+        align-items: flex-start;
+    }
+    .live-layout {
+        display: flex;
+    }
+    .live-layout > :first-child {
+        flex: 0 0 auto;
+        width: var(--live-left);
+        margin-right: var(--live-gap);
+    }
+    .live-layout > .live-information {
+        flex: 1 1 0px;
+        width: 0;
+    }
+    .connection-status > * + * {
+        margin-left: 12px;
+    }
+    .backend-results > * + * {
+        margin-top: 12px;
+    }
+    .phone-pairing > * + * {
+        margin-left: 32px;
+    }
 }

@@ -28,7 +28,14 @@ export class XtreamProvider implements ProviderClient {
         epg: true,
     };
     private client: XtreamClient;
-    private catalogs = new Map<string, Record<string, unknown>[]>();
+    /** Raw provider lists by action, shared by every caller (also while still loading). */
+    private pending = new Map<string, Promise<Record<string, unknown>[]>>();
+    /** Mapped Media per kind and the last filtered/sorted view: both cost O(list) on a TV CPU. */
+    private mapped = new Map<Kind, Media[]>();
+    private view?: { key: string; items: Media[] };
+    /** Owns requests that outlive a single screen; aborted with the provider. */
+    private lifetime = new AbortController();
+    private prefetchTimer?: ReturnType<typeof setTimeout>;
     constructor(
         private source: Source,
         transport: ProviderTransport
@@ -64,6 +71,54 @@ export class XtreamProvider implements ProviderClient {
             raw,
         };
     }
+    private list(action: string): Promise<Record<string, unknown>[]> {
+        let request = this.pending.get(action);
+        if (!request) {
+            request = this.client
+                .request(action, {}, this.lifetime.signal)
+                .then(rows)
+                .catch((error) => {
+                    // A failure must not be remembered: the next visit retries.
+                    this.pending.delete(action);
+                    throw error;
+                });
+            this.pending.set(action, request);
+        }
+        return request;
+    }
+    private mediaOf(kind: Kind, data: Record<string, unknown>[]): Media[] {
+        let items = this.mapped.get(kind);
+        if (!items) {
+            items = data.map((r) => this.media(r, kind));
+            this.mapped.set(kind, items);
+        }
+        return items;
+    }
+    /**
+     * Fetch the three catalogs one after another shortly after connecting, so the
+     * first visit to Live/Movies/Series finds them ready. Staggered so the JSON
+     * parsing of a very large list never lands in the middle of a key press.
+     */
+    prefetch() {
+        const steps = [
+            'get_live_categories',
+            'get_live_streams',
+            'get_vod_categories',
+            'get_vod_streams',
+            'get_series_categories',
+            'get_series',
+        ];
+        const next = () => {
+            const action = steps.shift();
+            if (!action || this.lifetime.signal.aborted) return;
+            this.list(action)
+                .catch(() => undefined)
+                .then(() => {
+                    this.prefetchTimer = setTimeout(next, 400);
+                });
+        };
+        this.prefetchTimer = setTimeout(next, 1500);
+    }
     async catalog(
         kind: Kind,
         category: string,
@@ -73,37 +128,32 @@ export class XtreamProvider implements ProviderClient {
         sort: CatalogSort = 'recent'
     ): Promise<Catalog> {
         const type = kind === 'movie' ? 'vod' : kind;
-        const key = type;
-        let data = this.catalogs.get(key);
-        if (!data) {
-            data = rows(
-                await this.client.request(
-                    kind === 'series' ? 'get_series' : `get_${type}_streams`,
-                    {},
-                    signal
-                )
-            );
-            if (!signal.aborted) this.catalogs.set(key, data);
-        }
-        const categories = rows(
-            await this.client.request(`get_${type}_categories`, {}, signal)
-        ).map((r) => ({
+        const [data, categoryRows] = await Promise.all([
+            this.list(kind === 'series' ? 'get_series' : `get_${type}_streams`),
+            this.list(`get_${type}_categories`),
+        ]);
+        if (signal.aborted) throw new DOMException('Aborted', 'AbortError');
+        const categories = categoryRows.map((r) => ({
             id: text(r.category_id),
             name: text(r.category_name),
         }));
-        const matchesTitle = catalogTitleMatcher(query);
-        const items = data
-            .map((r) => this.media(r, kind))
-            .filter(
+        // Later pages and repeat visits reuse the same filtered, sorted list.
+        const key = JSON.stringify([kind, category, query, sort]);
+        if (this.view?.key !== key) {
+            const matchesTitle = catalogTitleMatcher(query);
+            const items = this.mediaOf(kind, data).filter(
                 (m) =>
                     (!category || m.category === category) &&
                     matchesTitle(m.title)
             );
+            this.view = {
+                key,
+                items: sortCatalog(items, kind === 'live' ? 'provider' : sort),
+            };
+        }
+        const items = this.view.items;
         return {
-            items: sortCatalog(
-                items,
-                kind === 'live' ? 'provider' : sort
-            ).slice(page * 60, (page + 1) * 60),
+            items: items.slice(page * 60, (page + 1) * 60),
             total: items.length,
             page,
             categories,
@@ -230,6 +280,10 @@ export class XtreamProvider implements ProviderClient {
         };
     }
     dispose() {
-        this.catalogs.clear();
+        if (this.prefetchTimer) clearTimeout(this.prefetchTimer);
+        this.lifetime.abort();
+        this.pending.clear();
+        this.mapped.clear();
+        this.view = undefined;
     }
 }

@@ -84,6 +84,7 @@ export function useProvider(
                 if (!abort.signal.aborted) {
                     callbacks.current.report('');
                     setReady(retry + 1);
+                    client.prefetch?.();
                 }
             })
             .catch(() => {

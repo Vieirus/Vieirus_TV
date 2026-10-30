@@ -201,4 +201,146 @@ function SafeRegExp(pattern: any, flags?: string): RegExp {
 (SafeRegExp as any).prototype = NativeRegExp.prototype;
 w.RegExp = SafeRegExp;
 
+/*
+ * Scrolling. Chromium 53 predates three APIs the remote navigation relies on:
+ *  - scrollIntoView({ block: 'nearest' }) (61): a dictionary is read as `true`,
+ *    which aligns the element to the TOP, so the list jumped on every key press
+ *    and the focus frame never moved.
+ *  - focus({ preventScroll: true }) (64): ignored, the page scrolled anyway.
+ *  - Element.scrollTo / scrollBy (61): missing, throwing a TypeError.
+ */
+function optionRead(call: (probe: object) => void, name: string): boolean {
+    let read = false;
+    const probe = {};
+    Object.defineProperty(probe, name, {
+        get() {
+            read = true;
+            return undefined;
+        },
+    });
+    try {
+        call(probe);
+    } catch (_error) {
+        /* unsupported */
+    }
+    return read;
+}
+
+function scrollParents(element: Element): Element[] {
+    const parents: Element[] = [];
+    for (let p = element.parentElement; p; p = p.parentElement) {
+        const style = getComputedStyle(p);
+        if (
+            /(auto|scroll)/.test(style.overflowY + style.overflowX) &&
+            (p.scrollHeight > p.clientHeight || p.scrollWidth > p.clientWidth)
+        )
+            parents.push(p);
+    }
+    parents.push(document.scrollingElement || document.documentElement);
+    return parents;
+}
+
+function scrollDelta(
+    start: number,
+    end: number,
+    viewStart: number,
+    viewEnd: number,
+    mode: string
+): number {
+    if (mode === 'start') return start - viewStart;
+    if (mode === 'end') return end - viewEnd;
+    if (mode === 'center')
+        return (start + end) / 2 - (viewStart + viewEnd) / 2;
+    // nearest: do not move when already visible, otherwise the smallest move.
+    if (start >= viewStart && end <= viewEnd) return 0;
+    if (end - start > viewEnd - viewStart) return start - viewStart;
+    return start < viewStart ? start - viewStart : end - viewEnd;
+}
+
+if (
+    !optionRead(
+        (probe) =>
+            document.createElement('div').scrollIntoView(probe as any),
+        'behavior'
+    )
+) {
+    const nativeScrollIntoView = Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView = function (arg?: any) {
+        if (arg === undefined || typeof arg === 'boolean') {
+            nativeScrollIntoView.call(this, arg);
+            return;
+        }
+        const block = (arg && arg.block) || 'start';
+        const inline = (arg && arg.inline) || 'nearest';
+        const root = document.scrollingElement || document.documentElement;
+        scrollParents(this).forEach((container) => {
+            const isRoot = container === root;
+            const box = isRoot
+                ? { top: 0, left: 0 }
+                : container.getBoundingClientRect();
+            const viewTop = isRoot ? 0 : box.top + container.clientTop;
+            const viewLeft = isRoot ? 0 : box.left + container.clientLeft;
+            const viewHeight = isRoot ? window.innerHeight : container.clientHeight;
+            const viewWidth = isRoot ? window.innerWidth : container.clientWidth;
+            let r = this.getBoundingClientRect();
+            container.scrollTop += scrollDelta(
+                r.top,
+                r.bottom,
+                viewTop,
+                viewTop + viewHeight,
+                block
+            );
+            r = this.getBoundingClientRect();
+            container.scrollLeft += scrollDelta(
+                r.left,
+                r.right,
+                viewLeft,
+                viewLeft + viewWidth,
+                inline
+            );
+        });
+    };
+}
+
+if (
+    !optionRead(
+        (probe) => document.createElement('button').focus(probe as any),
+        'preventScroll'
+    )
+) {
+    const nativeFocus = HTMLElement.prototype.focus;
+    HTMLElement.prototype.focus = function (options?: any) {
+        if (!options || !options.preventScroll) {
+            nativeFocus.call(this);
+            return;
+        }
+        const saved = scrollParents(this).map(
+            (e) => [e, e.scrollTop, e.scrollLeft] as [Element, number, number]
+        );
+        nativeFocus.call(this);
+        saved.forEach(([e, top, left]) => {
+            e.scrollTop = top;
+            e.scrollLeft = left;
+        });
+    };
+}
+
+function scrollArguments(x?: any, y?: any): [number | undefined, number | undefined] {
+    return x && typeof x === 'object' ? [x.left, x.top] : [x, y];
+}
+if (!(Element.prototype as any).scrollTo) {
+    (Element.prototype as any).scrollTo = function (x?: any, y?: any) {
+        const [left, top] = scrollArguments(x, y);
+        if (left !== undefined) this.scrollLeft = left;
+        if (top !== undefined) this.scrollTop = top;
+    };
+}
+if (!(Element.prototype as any).scrollBy) {
+    (Element.prototype as any).scrollBy = function (x?: any, y?: any) {
+        const [left, top] = scrollArguments(x, y);
+        if (left) this.scrollLeft += left;
+        if (top) this.scrollTop += top;
+    };
+}
+
 export {};

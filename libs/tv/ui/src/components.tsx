@@ -1,4 +1,5 @@
 import { ChannelCard } from './channel-card';
+import { useTitleMarquee } from './title-marquee';
 import { Media } from '@iptvnator/tv/util';
 export * from './focus';
 export function Poster({
@@ -12,6 +13,7 @@ export function Poster({
     saved?: boolean;
     'data-virtual-index'?: number;
 }) {
+    const marquee = useTitleMarquee();
     if (item.kind === 'live')
         return <ChannelCard item={item} open={open} {...attributes} />;
     return (
@@ -20,6 +22,13 @@ export function Poster({
             class="poster-card"
             data-focus={item.id}
             onClick={() => open(item)}
+            onFocus={marquee.start}
+            onBlur={marquee.stop}
+            onMouseEnter={marquee.start}
+            onMouseLeave={(event) => {
+                if (document.activeElement !== event.currentTarget)
+                    marquee.stop();
+            }}
         >
             <span class="poster-art">
                 {item.poster ? (
@@ -41,7 +50,9 @@ export function Poster({
                           : 'FILM'}
                 </small>
             </span>
-            <strong>{item.title}</strong>
+            <strong ref={marquee.box}>
+                <span>{item.title}</span>
+            </strong>
             <span class="muted">
                 {saved ? '♥ Saved' : item.year || 'From your source'}
             </span>
