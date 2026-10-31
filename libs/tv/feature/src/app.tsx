@@ -77,7 +77,11 @@ export function TvApp() {
     const current = tv.playing;
     const element = video.current;
     const scrub = useScrub(tv.player.current);
-    const position = scrub.target ?? element?.currentTime ?? 0;
+    const position =
+        scrub.target ??
+        tv.player.current?.position ??
+        element?.currentTime ??
+        0;
     const controlsVisible = usePlayerControls(
         tv.fullscreen,
         !!overlay.panel || (element?.paused ?? true)

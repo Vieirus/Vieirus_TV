@@ -186,8 +186,19 @@ export class NativePlayer {
         if (this.video.paused) this.resume();
         else this.pause();
     }
+    /**
+     * Where playback is, or is about to be: while a seek is still being
+     * applied the TV keeps reporting the old time for a moment, and reading
+     * that made the timeline jump back and the next press start from there.
+     */
+    get position(): number {
+        const pending = this.restore;
+        if (pending && !pending.failed) return pending.target;
+        const now = this.video.currentTime;
+        return Number.isFinite(now) ? now : 0;
+    }
     seek(delta: number) {
-        this.seekTo(this.video.currentTime + delta);
+        this.seekTo(this.position + delta);
     }
     seekTo(seconds: number) {
         if (

@@ -55,7 +55,12 @@ export function useScrub(player?: NativePlayer) {
                 direction,
                 started: now,
                 last: now,
-                value: clamp((s?.value ?? video.currentTime) + direction * 10),
+                value: clamp(
+                    (s?.value ??
+                        latest.current?.position ??
+                        video.currentTime) +
+                        direction * 10
+                ),
             };
         } else {
             const held = (now - s.started) / 1000;

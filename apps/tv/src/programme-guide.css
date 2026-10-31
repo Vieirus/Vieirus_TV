@@ -3,7 +3,7 @@
     display: flex;
     flex-direction: column;
     padding: 40px 56px;
-    background: rgba(11, 11, 16, 0.96);
+    background: rgba(14, 30, 78, 0.96);
     color: var(--tv-text);
 }
 .programme-guide-header {

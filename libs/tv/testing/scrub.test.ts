@@ -14,10 +14,17 @@ test('timeline: short press = 10 s, held key accelerates, one seek on release', 
     });
     options.debounceRendering = (f) => f();
     const seeks: number[] = [];
-    const player = {
+    // The TV keeps reporting the old currentTime while a seek is applied;
+    // the player's position is the pending target.
+    const fake = {
         video: { currentTime: 100, duration: 3600 },
-        seekTo: (s: number) => seeks.push(s),
-    } as unknown as NativePlayer;
+        position: 100,
+        seekTo: (s: number) => {
+            seeks.push(s);
+            fake.position = s;
+        },
+    };
+    const player = fake as unknown as NativePlayer;
     let scrub!: ReturnType<typeof useScrub>;
     const Probe = () => {
         scrub = useScrub(player);
@@ -53,7 +60,11 @@ test('timeline: short press = 10 s, held key accelerates, one seek on release', 
         Date.now = realNow;
     }
     assert.equal(seeks.length, 2);
-    // Far more than the 10 s per press a plain repeat would give (~400 s).
-    assert.ok(seeks[1] - 100 > 60, `moved ${seeks[1] - 100}s`);
+    // Started from the pending 110 s, not the stale 100 s, and accelerated.
+    assert.ok(seeks[1] - 110 > 60, `moved ${seeks[1] - 110}s`);
     assert.ok(seeks[1] < 3600);
+    // Next press continues from the pending target: never backwards.
+    scrub.keyDown(key());
+    scrub.keyUp(key());
+    assert.equal(seeks[2], seeks[1] + 10);
 });

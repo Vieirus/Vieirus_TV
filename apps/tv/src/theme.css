@@ -1,15 +1,15 @@
 :root {
     --tv-text-scale: 1.25;
-    --tv-bg: #0b0b10;
-    --tv-surface: #17181f;
-    --tv-text: #eeeef3;
-    --tv-muted: #9a9ba9;
+    --tv-bg: #0e1e4e;
+    --tv-surface: #11245f;
+    --tv-text: #f2f4fb;
+    --tv-muted: #b5c2e9;
     --tv-accent: #0000ff;
     /* #0000FF is too dark to read as text or a focus ring on the dark
        background, so those use a lighter shade of the same blue. */
-    --tv-accent-text: #7a85ff;
+    --tv-accent-text: #a9b8ff;
     --app-focus-ring-color: var(--tv-accent-text);
-    --tv-line: #2a2b38;
+    --tv-line: #162f7b;
     color-scheme: dark;
     font-family: 'Trebuchet MS', sans-serif;
     font-size: calc(22px * var(--tv-text-scale));
@@ -43,7 +43,7 @@ button {
     min-height: 56px;
 }
 button:hover {
-    background: #262736;
+    background: #152e77;
 }
 button:focus,
 input:focus,
@@ -62,14 +62,15 @@ button[aria-pressed='true'] {
 }
 button.primary {
     background: var(--tv-accent);
+    border-color: rgba(255, 255, 255, 0.35);
     color: #ffffff;
     font-weight: 700;
 }
 input,
 select {
-    background: #171821;
+    background: #112560;
     color: var(--tv-text);
-    border: 1px solid #404255;
+    border: 1px solid #1b3c9c;
     border-radius: 6px;
     min-height: 56px;
     padding: 12px 16px;
@@ -147,7 +148,7 @@ aside {
     bottom: 0;
     width: 230px;
     padding: 52px 22px;
-    background: #0d0e14;
+    background: #0e1f52;
     display: flex;
     flex-direction: column;
 }
@@ -180,7 +181,7 @@ nav button {
 }
 nav button[aria-current='page'] {
     color: var(--tv-accent-text);
-    background: #1a1c2d;
+    background: #13296a;
 }
 .nav-icon {
     width: 38px;
@@ -192,7 +193,7 @@ nav button[aria-current='page'] {
     margin-top: auto;
     padding: 20px 14px 0;
     font-size: calc(12px * var(--tv-text-scale));
-    color: #747689;
+    color: #99abe2;
     line-height: 1.9;
     letter-spacing: 3px;
 }
@@ -229,7 +230,7 @@ header select {
     max-width: 360px;
     flex-shrink: 0;
     font-size: calc(17px * var(--tv-text-scale));
-    background: rgba(11, 11, 16, 0.8);
+    background: rgba(14, 30, 78, 0.8);
 }
 .cinematic-page > * {
     position: relative;
@@ -243,7 +244,7 @@ header select {
     right: 0;
     height: 880px;
     pointer-events: none;
-    background: linear-gradient(135deg, #1c1e38, var(--tv-bg) 80%);
+    background: linear-gradient(135deg, #142c72, var(--tv-bg) 80%);
 }
 .page-backdrop img,
 .backdrop-scrim {
@@ -262,14 +263,14 @@ header select {
         linear-gradient(
             0deg,
             var(--tv-bg) 0%,
-            rgba(11, 11, 16, 0.88) 12%,
-            rgba(11, 11, 16, 0) 64%
+            rgba(14, 30, 78, 0.88) 12%,
+            rgba(14, 30, 78, 0) 64%
         ),
         linear-gradient(
             90deg,
-            rgba(11, 11, 16, 0.96) 0%,
-            rgba(11, 11, 16, 0.78) 33%,
-            rgba(11, 11, 16, 0.18) 75%
+            rgba(14, 30, 78, 0.96) 0%,
+            rgba(14, 30, 78, 0.78) 33%,
+            rgba(14, 30, 78, 0.18) 75%
         );
 }
 .shelf .home-page > .page-backdrop {
@@ -307,7 +308,7 @@ header select {
 .hero p {
     max-width: 550px;
     font-size: calc(22px * var(--tv-text-scale));
-    color: #bebfcb;
+    color: #d0d8f1;
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
@@ -355,12 +356,12 @@ header select {
     position: absolute;
     right: 42px;
     bottom: 48px;
-    color: #8b8da9;
+    color: #afbde8;
     font-size: calc(27px * var(--tv-text-scale));
     letter-spacing: 2px;
 }
 .hero-number span {
-    color: #b9bacb;
+    color: #ced6f1;
 }
 .hero-number small {
     font-size: calc(10px * var(--tv-text-scale));
@@ -406,7 +407,7 @@ header select {
     height: 0;
     padding-top: 150%;
     display: block;
-    background: linear-gradient(145deg, #26283e, #14151e);
+    background: linear-gradient(145deg, #16307c, #10235d);
     position: relative;
     overflow: hidden;
     border-radius: 6px;
@@ -429,18 +430,18 @@ header select {
     font:
         26px Georgia,
         serif;
-    color: #b9bacb;
+    color: #ced6f1;
 }
 .poster-art small {
     position: absolute;
     z-index: 2;
     bottom: 14px;
     left: 16px;
-    background: rgba(11, 11, 16, 0.9);
+    background: rgba(14, 30, 78, 0.9);
     padding: 3px 6px;
     font-size: calc(11px * var(--tv-text-scale));
     letter-spacing: 2px;
-    color: #cbccd9;
+    color: #dae1f4;
 }
 .poster-card > strong {
     font-size: calc(20px * var(--tv-text-scale));
@@ -494,7 +495,7 @@ header select {
     align-items: center;
     justify-content: center;
     color: var(--tv-accent-text);
-    background: #26283e;
+    background: #16307c;
 }
 .resume-art > svg {
     width: 40px;
@@ -562,7 +563,7 @@ header select {
     font-size: calc(17px * var(--tv-text-scale));
 }
 .favorite-types button[aria-pressed='true'] {
-    background: #1a1c2d;
+    background: #13296a;
     color: var(--tv-accent-text);
 }
 .station-grid {
@@ -715,7 +716,7 @@ summary {
     min-width: 240px;
     width: 240px;
     height: 360px;
-    background: #1d1f30;
+    background: #132a6e;
     margin-right: 55px;
     display: flex;
     align-items: center;
@@ -730,7 +731,7 @@ summary {
     max-width: 880px;
 }
 .detail-hero p {
-    color: #bebfcb;
+    color: #d0d8f1;
     max-height: 180px;
     overflow: auto;
 }
@@ -841,7 +842,7 @@ main.live-page {
 }
 .channels::-webkit-scrollbar-thumb,
 .programme-list::-webkit-scrollbar-thumb {
-    background: #404255;
+    background: #1b3c9c;
 }
 .channel-pane-header {
     flex-shrink: 0;
@@ -885,7 +886,7 @@ main.live-page {
     color: var(--tv-accent-text);
 }
 .live-category[aria-pressed='true'] {
-    background: #1c1d2a;
+    background: #132869;
 }
 .channel {
     width: 100%;
@@ -897,11 +898,11 @@ main.live-page {
     min-height: 86px;
 }
 .channel[aria-pressed='true'] {
-    background: #1c1d2a;
-    border-color: #525469;
+    background: #132869;
+    border-color: #2045b4;
 }
 .channel.is-playing {
-    background: #232643;
+    background: #16307e;
 }
 .channel-logo {
     width: 48px;
@@ -915,7 +916,7 @@ main.live-page {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #282a3e;
+    background: #16307e;
     color: var(--tv-accent-text);
 }
 .channel-logo img {
@@ -925,7 +926,7 @@ main.live-page {
     width: 100%;
     height: 100%;
     object-fit: contain;
-    background: #282a3e;
+    background: #16307e;
 }
 .channel-number {
     font-size: calc(14px * var(--tv-text-scale));
@@ -955,7 +956,7 @@ main.live-page {
     width: 100%;
     height: 0;
     padding-bottom: 56.25%;
-    background: #050508;
+    background: #0c1a45;
     position: relative;
     border: 1px solid var(--tv-line);
     display: flex;
@@ -991,7 +992,7 @@ main.live-page {
     padding: 8px 16px;
     border-radius: 8px;
     font-size: calc(17px * var(--tv-text-scale));
-    background: rgba(23, 24, 37, 0.9);
+    background: rgba(17, 38, 99, 0.9);
 }
 .preview-open:hover {
     background: transparent;
