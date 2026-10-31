@@ -13,6 +13,20 @@ interface TrackListLike<T> {
 export interface TrackChoice {
     label: string;
     active: boolean;
+    /** The track is in French (language code or label). */
+    french: boolean;
+}
+/** fr / fre / fra / fr-CA…, or a label such as "Français", "French", "VF". */
+export function isFrench(
+    track: { label?: string; language?: string },
+    audio = false
+): boolean {
+    const language = (track.language || '').trim().toLowerCase();
+    if (/^(fr|fre|fra)(-|_|$)/.test(language)) return true;
+    const label = (track.label || '').toLowerCase();
+    // "VOSTFR" = original audio with French subtitles: French only as a subtitle.
+    if (audio && /vost/.test(label)) return false;
+    return /fran[cç]ais|french|\bvf[fqi]?\b|vostfr/.test(label);
 }
 const LANGUAGES: Record<string, string> = {
     fr: 'Français',
@@ -133,6 +147,7 @@ export class PlayerTracks {
             result.push({
                 label: trackLabel(list[i], i),
                 active: list[i].enabled,
+                french: isFrench(list[i], true),
             });
         return result.length > 1 ? result : [];
     }
@@ -157,6 +172,7 @@ export class PlayerTracks {
         return this.subtitles().map((track, i) => ({
             label: trackLabel(track, i),
             active: track.mode === 'showing',
+            french: isFrench(track),
         }));
     }
     /** -1 turns subtitles off. */
@@ -175,7 +191,58 @@ export class PlayerTracks {
         // Off → first → second → … → Off
         this.selectText(active + 1 >= tracks.length ? -1 : active + 1);
     }
+    private context = '';
+    private defaults = false;
+    /**
+     * Called for every new stream. Within one series the viewer's choice
+     * carries over to the next episode; any other title starts again from the
+     * French defaults (films and episodes only, not live channels).
+     */
+    start(context: string, defaults: boolean) {
+        if (context !== this.context) {
+            this.preferredAudio = undefined;
+            this.preferredText = undefined;
+        }
+        this.context = context;
+        this.defaults = defaults;
+    }
+    /**
+     * Without a choice of the viewer: French audio when there is one; then
+     * subtitles off if the audio is French, French subtitles if the audio is
+     * known to be another language, otherwise untouched.
+     */
+    private applyDefaults() {
+        const audio = this.audioList;
+        let frenchAudio = false;
+        let otherAudio = false;
+        if (audio && this.preferredAudio === undefined) {
+            let french = -1;
+            for (let i = 0; i < audio.length; i++)
+                if (french < 0 && isFrench(audio[i], true)) french = i;
+            if (french >= 0 && audio.length > 1 && !audio[french].enabled) {
+                audio[french].enabled = true;
+                for (let j = 0; j < audio.length; j++)
+                    if (j !== french) audio[j].enabled = false;
+            }
+        }
+        for (let i = 0; audio && i < audio.length; i++)
+            if (audio[i].enabled) {
+                if (isFrench(audio[i], true)) frenchAudio = true;
+                else if (audio[i].language && audio[i].language !== 'und')
+                    otherAudio = true;
+            }
+        if (this.preferredText !== undefined) return;
+        const subtitles = this.subtitles();
+        const french = subtitles.findIndex((t) => isFrench(t));
+        const chosen = frenchAudio ? -1 : otherAudio ? french : -2;
+        if (chosen === -2) return;
+        subtitles.forEach((track, i) => {
+            const mode = i === chosen ? 'showing' : 'disabled';
+            if (track.mode !== mode) track.mode = mode;
+        });
+    }
     private applyPreferences() {
+        if (this.defaults) this.applyDefaults();
         const audio = this.audioList;
         if (audio && this.preferredAudio !== undefined)
             for (let i = 0; i < audio.length; i++)

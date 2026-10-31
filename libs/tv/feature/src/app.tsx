@@ -6,6 +6,8 @@ import { Favorites } from './favorites';
 import { usePlayerControls } from './player-controls';
 import { seekKeys, TrackButtons } from './player-tracks';
 import { usePreviewPosition } from './use-preview-position';
+import { useNextEpisode } from './use-next-episode';
+import { StartupSplash, useStartupSplash } from './startup-splash';
 import { useEffect, useRef } from 'preact/hooks';
 import { useTv } from './use-tv';
 import type { View } from './navigation';
@@ -45,6 +47,8 @@ export function TvApp() {
     const detailSeason = useDetailSeason(tv.route);
     const seriesDetails = useSeriesDetails(tv);
     useSeriesContext(tv);
+    useNextEpisode(tv);
+    const splash = useStartupSplash(tv);
     const browse = useLiveBrowse(tv);
     const overlay = useLiveOverlay(tv, browse);
     usePreviewPosition(tv);
@@ -365,6 +369,7 @@ export function TvApp() {
                 ) : null}
             </div>
             <LiveOverlay tv={tv} browse={browse} overlay={overlay} />
+            <StartupSplash splash={splash} />
         </div>
     );
 }

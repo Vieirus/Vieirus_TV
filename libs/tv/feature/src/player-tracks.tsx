@@ -27,7 +27,13 @@ export function TrackButtons({ player }: { player?: NativePlayer }) {
     useEffect(() => {
         if (!panel) return;
         const tracks = panel.kind === 'audio' ? audio : text;
-        restoreFocus(`track-${panel.kind}-${active(tracks)}`);
+        // Subtitles off: preselect French, so one OK turns them on.
+        const french = tracks.findIndex((t) => t.french);
+        const focus =
+            panel.kind === 'text' && active(tracks) < 0 && french >= 0
+                ? french
+                : active(tracks);
+        restoreFocus(`track-${panel.kind}-${focus}`);
     }, [panel?.kind]);
     if (!player || (!audio.length && !text.length)) return null;
     const open = (kind: Kind) => {

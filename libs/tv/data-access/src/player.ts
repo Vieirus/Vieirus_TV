@@ -96,6 +96,12 @@ export class NativePlayer {
         this.stop();
         const generation = ++this.generation;
         this.item = item;
+        this.tracks.start(
+            item.kind === 'episode'
+                ? `series:${item.parentId || item.seriesTitle || item.id}`
+                : `${item.kind}:${item.id}`,
+            item.kind !== 'live'
+        );
         this.lastPlayback = { sourceId: item.sourceId, url: playback.url };
         if (item.kind !== 'live' && Number.isFinite(resume) && resume > 0)
             this.startRestore(resume);
