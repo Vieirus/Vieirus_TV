@@ -43,7 +43,7 @@ export function LiveChannels({
                         ? 'Choose a category'
                         : overlay
                           ? 'OK: switch channel · Back: close'
-                          : 'OK: preview · OK again: fullscreen'}
+                          : 'OK: preview · →: fullscreen'}
                 </span>
             </div>
             <div
@@ -88,6 +88,28 @@ export function LiveChannels({
                                 data-focus={item.id}
                                 aria-pressed={tv.selected?.id === item.id}
                                 onFocus={() => tv.setSelected(item)}
+                                onKeyDown={(event) => {
+                                    // Right goes straight to the preview so it can
+                                    // be opened fullscreen; geometric navigation
+                                    // picked the guide buttons below it instead.
+                                    if (
+                                        overlay ||
+                                        !(
+                                            event.key === 'ArrowRight' ||
+                                            event.keyCode === 39
+                                        )
+                                    )
+                                        return;
+                                    const preview =
+                                        document.querySelector<HTMLElement>(
+                                            '[data-focus="live-fullscreen"]'
+                                        );
+                                    if (!preview || !preview.offsetWidth)
+                                        return;
+                                    event.preventDefault();
+                                    event.stopPropagation();
+                                    preview.focus();
+                                }}
                                 onClick={() => {
                                     tv.setSelected(item);
                                     void tv.play(item);

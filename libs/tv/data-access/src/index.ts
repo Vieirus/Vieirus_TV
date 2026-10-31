@@ -5,6 +5,7 @@ import { StalkerProvider } from './stalker';
 import { M3uProvider } from './m3u';
 export * from './storage';
 export * from './player';
+export * from './player-tracks';
 export { ProviderTransport };
 export { ProviderRequestError } from './transport';
 export function createProvider(

@@ -146,7 +146,7 @@ export function useCatalog(
         };
         snapshot.current = initial;
         setState(initial);
-        const timer = setTimeout(() => void load(false), route.query ? 180 : 0);
+        const timer = setTimeout(() => void load(false), route.query ? 400 : 0);
         return () => {
             clearTimeout(timer);
             lane.current.cancel();

@@ -4,6 +4,7 @@ import { useHomeFeature } from './use-home-feature';
 import { PageHeader } from './page-header';
 import { Favorites } from './favorites';
 import { usePlayerControls } from './player-controls';
+import { seekKeys, TrackButtons } from './player-tracks';
 import { useEffect, useRef } from 'preact/hooks';
 import { useTv } from './use-tv';
 import type { View } from './navigation';
@@ -94,7 +95,13 @@ export function TvApp() {
     const element = video.current;
     const controlsVisible = usePlayerControls(
         tv.fullscreen,
-        !!overlay.panel || (element?.paused ?? true)
+        !!overlay.panel || (element?.paused ?? true),
+        (seconds) => {
+            if (!current || current.kind === 'live' || overlay.panel)
+                return false;
+            tv.player.current?.seek(seconds);
+            return true;
+        }
     );
     const time = (seconds: number) =>
         Number.isFinite(seconds)
@@ -333,6 +340,7 @@ export function TvApp() {
                                         </span>
                                     </>
                                 ) : null}
+                                <TrackButtons player={tv.player.current} />
                                 <button
                                     onClick={() =>
                                         current && tv.favorite(current)
@@ -343,9 +351,11 @@ export function TvApp() {
                             </div>
                             {current?.kind !== 'live' ? (
                                 <label class="seek">
-                                    Playback position
+                                    Playback position · ← → : 10 s
                                     <input
                                         aria-label="Playback position"
+                                        data-focus="player-seek"
+                                        onKeyDown={seekKeys(tv.player.current)}
                                         type="range"
                                         min="0"
                                         max={

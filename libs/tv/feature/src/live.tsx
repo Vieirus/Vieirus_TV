@@ -48,9 +48,28 @@ export function Live({
                             onClick={() => {
                                 if (tv.playing) void tv.play(tv.playing);
                             }}
+                            onKeyDown={(event) => {
+                                // Left returns to the channel being watched.
+                                if (
+                                    event.key !== 'ArrowLeft' &&
+                                    event.keyCode !== 37
+                                )
+                                    return;
+                                const id = tv.playing?.id ?? tv.selected?.id;
+                                const channel = Array.from(
+                                    document.querySelectorAll<HTMLElement>(
+                                        'main .channels [data-focus]'
+                                    )
+                                ).find((e) => e.dataset.focus === id);
+                                if (!channel) return;
+                                event.preventDefault();
+                                event.stopPropagation();
+                                channel.focus();
+                                channel.scrollIntoView({ block: 'nearest' });
+                            }}
                             aria-label="Open fullscreen"
                         >
-                            Fullscreen ↗
+                            <span>Fullscreen ↗</span>
                         </button>
                     ) : (
                         <span>Select a channel to start preview</span>

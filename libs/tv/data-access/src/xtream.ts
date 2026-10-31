@@ -8,6 +8,7 @@ import {
     CatalogSort,
     sortCatalog,
     catalogTitleMatcher,
+    warmTitleIndex,
     Kind,
     Media,
     Source,
@@ -110,7 +111,11 @@ export class XtreamProvider implements ProviderClient {
         ];
         const next = () => {
             const action = steps.shift();
-            if (!action || this.lifetime.signal.aborted) return;
+            if (this.lifetime.signal.aborted) return;
+            if (!action) {
+                this.warmSearch();
+                return;
+            }
             this.list(action)
                 .catch(() => undefined)
                 .then(() => {
@@ -118,6 +123,29 @@ export class XtreamProvider implements ProviderClient {
                 });
         };
         this.prefetchTimer = setTimeout(next, 1500);
+    }
+    /** Build the search index of films and series in the background. */
+    private warmSearch() {
+        const kinds: [Kind, string][] = [
+            ['movie', 'get_vod_streams'],
+            ['series', 'get_series'],
+        ];
+        kinds.forEach(([kind, action], n) => {
+            this.prefetchTimer = setTimeout(
+                () => {
+                    if (this.lifetime.signal.aborted) return;
+                    this.list(action)
+                        .then((data) =>
+                            warmTitleIndex(
+                                this.mediaOf(kind, data).map((m) => m.title),
+                                this.lifetime.signal
+                            )
+                        )
+                        .catch(() => undefined);
+                },
+                800 * (n + 1)
+            );
+        });
     }
     async catalog(
         kind: Kind,

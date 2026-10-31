@@ -1,4 +1,5 @@
 import { Media, Playback, Progress } from '@iptvnator/tv/util';
+import { PlayerTracks } from './player-tracks';
 /** Owns the only native video element. History begins at `playing`, never at intent. */
 export class NativePlayer {
     item?: Media;
@@ -24,6 +25,7 @@ export class NativePlayer {
     private restoreTimer?: ReturnType<typeof setInterval>;
     private generation = 0;
     private handlers: Record<string, () => void>;
+    readonly tracks: PlayerTracks;
     constructor(
         readonly video: HTMLVideoElement,
         private save: (progress: Progress) => Promise<void>,
@@ -72,6 +74,7 @@ export class NativePlayer {
         Object.keys(this.handlers).forEach((name) =>
             video.addEventListener(name, this.handlers[name])
         );
+        this.tracks = new PlayerTracks(video, () => this.changed());
         document.addEventListener('visibilitychange', this.visibility);
         window.addEventListener('pagehide', this.visibility);
         this.timer = setInterval(() => this.persist(), 10000);
@@ -279,6 +282,7 @@ export class NativePlayer {
         Object.keys(this.handlers).forEach((name) =>
             this.video.removeEventListener(name, this.handlers[name])
         );
+        this.tracks.dispose();
         document.removeEventListener('visibilitychange', this.visibility);
         window.removeEventListener('pagehide', this.visibility);
     }

@@ -5,6 +5,7 @@ import {
     CatalogSort,
     sortCatalog,
     catalogTitleMatcher,
+    warmTitleIndex,
     Kind,
     Media,
     Source,
@@ -56,6 +57,10 @@ export class M3uProvider implements ProviderClient {
                 raw,
             };
         });
+        // Prepare the film/series search index while the viewer is on Home.
+        warmTitleIndex(
+            this.items.filter((i) => i.kind !== 'live').map((i) => i.title)
+        );
         return this.source;
     }
     async catalog(

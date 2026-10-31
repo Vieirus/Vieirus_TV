@@ -64,14 +64,16 @@ export function installRemote(
         const from = document.activeElement as HTMLElement;
         const horizontal = /Left|Right/.test(direction);
         // Keep caret/slider movement native; vertical arrows leave single-line
-        // fields. Selects own vertical choice changes and leave horizontally.
+        // fields. A closed select is just another focus stop: on a remote,
+        // Up/Down on it used to change the value (category, sort…) while the
+        // viewer only wanted to move on. OK opens the native list, which takes
+        // the arrow keys itself while it is open.
         if (
             from?.matches('textarea') ||
             (horizontal &&
                 from?.matches(
                     'input:not([type="checkbox"]):not([type="radio"])'
-                )) ||
-            (!horizontal && from?.matches('select'))
+                ))
         )
             return;
         event.preventDefault();

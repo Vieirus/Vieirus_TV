@@ -965,13 +965,41 @@ main.live-page {
     top: 46%;
     font-size: calc(19px * var(--tv-text-scale));
 }
+/* The whole preview is the target: easy to reach with the remote, and its
+   focus ring frames the video that will open fullscreen. */
 .preview-open {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+}
+.preview-open > span {
     position: absolute;
     bottom: 18px;
     right: 18px;
-    z-index: 5;
+    padding: 8px 16px;
+    border-radius: 8px;
     font-size: calc(17px * var(--tv-text-scale));
     background: rgba(23, 37, 30, 0.9);
+}
+.preview-open:hover {
+    background: transparent;
+}
+.preview-open:focus {
+    outline: 5px solid var(--app-focus-ring-color);
+    outline-offset: 0;
+}
+.preview-open:focus > span {
+    background: var(--tv-accent);
+    color: #06110d;
 }
 .live-information .section-title h2 {
     font-size: calc(26px * var(--tv-text-scale));
@@ -1034,7 +1062,12 @@ main.live-page {
     right: 0;
     top: 0;
     bottom: 0;
-    background: linear-gradient(rgba(0, 0, 0, 0.6), transparent 30%, transparent 45%, rgba(0, 0, 0, 0.93));
+    background: linear-gradient(
+        rgba(0, 0, 0, 0.6),
+        transparent 30%,
+        transparent 45%,
+        rgba(0, 0, 0, 0.93)
+    );
     padding: 54px;
 }
 .player-top {
