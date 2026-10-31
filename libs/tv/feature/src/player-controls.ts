@@ -1,20 +1,15 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 /**
  * Controls reappear on remote/pointer input; Back and media keys keep their
- * normal meaning. While the controls are hidden, Left/Right seek by 10 seconds
- * (like most TV players) instead of only revealing the controls.
+ * normal meaning. While the controls are hidden, a key press only reveals
+ * them: arrows used to seek then, so the first press towards a button jumped
+ * 10 s instead. Seeking with arrows happens on the timeline only.
  */
-export function usePlayerControls(
-    fullscreen: boolean,
-    paused: boolean,
-    seek?: (seconds: number) => boolean
-) {
+export function usePlayerControls(fullscreen: boolean, paused: boolean) {
     const [visible, setVisible] = useState(true);
     const timer = useRef<ReturnType<typeof setTimeout>>();
     const current = useRef(visible);
     current.current = visible;
-    const seeker = useRef(seek);
-    seeker.current = seek;
     const reveal = () => {
         current.current = true;
         setVisible(true);
@@ -30,24 +25,10 @@ export function usePlayerControls(
         if (!fullscreen) return;
         const key = (event: KeyboardEvent) => {
             const hidden = !current.current;
-            const left = event.key === 'ArrowLeft' || event.keyCode === 37;
-            const right = event.key === 'ArrowRight' || event.keyCode === 39;
-            if (
-                hidden &&
-                (left || right) &&
-                seeker.current?.(right ? 10 : -10)
-            ) {
-                event.preventDefault();
-                event.stopPropagation();
-                // Show where playback now is, with the timeline focused so the
-                // next presses keep seeking.
-                reveal();
-                document
-                    .querySelector<HTMLElement>('[data-focus="player-seek"]')
-                    ?.focus();
-                return;
-            }
-            if (hidden && event.key === 'Enter') {
+            const arrow = event.keyCode >= 37 && event.keyCode <= 40;
+            // Hidden controls: OK and arrows just bring them back, keeping
+            // the focus where it was.
+            if (hidden && (event.key === 'Enter' || arrow)) {
                 event.preventDefault();
                 event.stopPropagation();
             }

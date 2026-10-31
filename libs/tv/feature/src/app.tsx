@@ -73,13 +73,7 @@ export function TvApp() {
     const element = video.current;
     const controlsVisible = usePlayerControls(
         tv.fullscreen,
-        !!overlay.panel || (element?.paused ?? true),
-        (seconds) => {
-            if (!current || current.kind === 'live' || overlay.panel)
-                return false;
-            tv.player.current?.seek(seconds);
-            return true;
-        }
+        !!overlay.panel || (element?.paused ?? true)
     );
     const time = (seconds: number) =>
         Number.isFinite(seconds)
