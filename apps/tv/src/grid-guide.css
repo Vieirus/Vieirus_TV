@@ -1,6 +1,6 @@
 .grid-overlay .live-overlay-panel {
     padding: 0;
-    background: rgba(14, 30, 78, 0.98);
+    background: rgba(23, 50, 130, 0.98);
 }
 .grid-guide {
     height: 100%;
@@ -95,7 +95,7 @@
     display: flex;
     align-items: center;
     padding: 10px 12px;
-    background: #112561;
+    background: #1a3995;
 }
 .grid-channel .channel-logo {
     width: 48px;
@@ -120,7 +120,7 @@
     margin-top: 5px;
 }
 .grid-channel.is-playing {
-    background: #16307e;
+    background: #1f44b2;
 }
 .grid-channel.is-playing small {
     color: var(--tv-accent-text);
@@ -136,11 +136,11 @@
     padding: 10px 14px;
     min-width: 0;
     overflow: hidden;
-    background: #122767;
+    background: #1b3b9b;
     border: 3px solid var(--tv-bg);
 }
 .grid-program.on-air {
-    background: #173181;
+    background: #2045b5;
 }
 .grid-program:focus {
     z-index: 3;

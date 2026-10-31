@@ -20,7 +20,7 @@
     display: flex;
     flex-direction: column;
     padding: 36px 28px;
-    background: rgba(14, 31, 80, 0.94);
+    background: rgba(23, 51, 132, 0.94);
 }
 .channels-overlay .live-overlay-panel {
     width: 38%;
@@ -28,8 +28,8 @@
     max-width: 680px;
     background: linear-gradient(
         100deg,
-        rgba(14, 31, 80, 0.97),
-        rgba(14, 31, 80, 0.88)
+        rgba(23, 51, 132, 0.97),
+        rgba(23, 51, 132, 0.88)
     );
 }
 .live-overlay-panel > .channel-pane {
@@ -44,10 +44,10 @@
     background: transparent;
 }
 .live-overlay .channel-pane-header button {
-    background: rgba(22, 48, 124, 0.85);
+    background: rgba(31, 68, 176, 0.85);
 }
 .live-overlay .channel.is-playing {
-    background: #16307e;
+    background: #1f44b2;
 }
 .live-overlay-panel > [role='alert'] {
     margin: 12px 8px 0;

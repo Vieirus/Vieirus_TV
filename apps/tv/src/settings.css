@@ -47,7 +47,7 @@
     margin-top: 6px;
 }
 .settings-categories [aria-selected='true'] {
-    background: #13296a;
+    background: #1c3d9e;
     color: var(--tv-accent-text);
 }
 .settings-workspace > [role='tabpanel'] {

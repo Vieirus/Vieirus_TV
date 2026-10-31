@@ -6,6 +6,7 @@ import { Favorites } from './favorites';
 import { usePlayerControls } from './player-controls';
 import { TrackButtons } from './player-tracks';
 import { useScrub } from './use-scrub';
+import { SeekBar } from './seek-bar';
 import { usePreviewPosition } from './use-preview-position';
 import { useNextEpisode } from './use-next-episode';
 import { StartupSplash, useStartupSplash } from './startup-splash';
@@ -333,29 +334,12 @@ export function TvApp() {
                                 </button>
                             </div>
                             {current?.kind !== 'live' ? (
-                                <label class="seek">
-                                    Playback position · ← → : 10 s · hold to
-                                    move faster
-                                    <input
-                                        aria-label="Playback position"
-                                        data-focus="player-seek"
-                                        onKeyDown={scrub.keyDown}
-                                        onBlur={scrub.blur}
-                                        type="range"
-                                        min="0"
-                                        max={
-                                            Number.isFinite(element?.duration)
-                                                ? element!.duration
-                                                : 0
-                                        }
-                                        value={position}
-                                        onInput={(e) => {
-                                            tv.player.current?.seekTo(
-                                                Number(e.currentTarget.value)
-                                            );
-                                        }}
-                                    />
-                                </label>
+                                <SeekBar
+                                    player={tv.player.current}
+                                    video={element}
+                                    position={position}
+                                    scrub={scrub}
+                                />
                             ) : null}
                             {tv.player.current?.restoringPosition ? (
                                 <p role="status">Restoring saved position…</p>

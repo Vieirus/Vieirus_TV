@@ -84,3 +84,47 @@ test('step grows with hold time and is capped', () => {
     assert.equal(scrubStep(3, 3600), 40);
     assert.equal(scrubStep(10, 3600), 90);
 });
+
+test('held Left rewinds with the same acceleration', async () => {
+    const dom = new JSDOM('<div id="root"></div>');
+    Object.assign(globalThis, {
+        document: dom.window.document,
+        window: dom.window,
+    });
+    options.debounceRendering = (f) => f();
+    const log: string[] = [];
+    const fake = {
+        video: { currentTime: 3000, duration: 3600, paused: false },
+        position: 3000,
+        seekTo: (s: number) => log.push(`seek ${Math.round(s)}`),
+        pause: () => log.push('pause'),
+        resume: () => log.push('play'),
+    };
+    let scrub!: ReturnType<typeof useScrub>;
+    const Probe = () => {
+        scrub = useScrub(fake as unknown as NativePlayer);
+        return null;
+    };
+    render(h(Probe, {}), dom.window.document.getElementById('root')!);
+    const realNow = Date.now;
+    let now = realNow();
+    Date.now = () => now;
+    try {
+        for (let i = 0; i < 40; i++) {
+            scrub.keyDown({
+                key: 'ArrowLeft',
+                keyCode: 37,
+                repeat: false,
+                preventDefault() {},
+                stopPropagation() {},
+            } as never);
+            now += 120;
+        }
+    } finally {
+        Date.now = realNow;
+    }
+    await new Promise((r) => setTimeout(r, 750));
+    assert.equal(log[0], 'pause');
+    assert.ok(3000 - Number(log[1].split(' ')[1]) > 1000, log[1]);
+    assert.equal(log[2], 'play');
+});
