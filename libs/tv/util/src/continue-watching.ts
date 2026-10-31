@@ -1,5 +1,12 @@
 import type { Progress, UserData } from './index';
 
+/** Watched to the end (the player restarts such titles from the beginning). */
+export function isFinished(p: Pick<Progress, 'seconds' | 'duration'>) {
+    return !!p.duration && p.duration - p.seconds <= 15;
+}
+const isSeriesEpisode = (p: Progress) =>
+    p.item.kind === 'episode' && !!p.item.parentId;
+
 /** A series contributes its latest episode only, even if older episodes are unfinished. */
 export function continueWatching(data: UserData, limit = 8): Progress[] {
     const seen = new Set<string>();
@@ -24,11 +31,10 @@ export function continueWatching(data: UserData, limit = 8): Progress[] {
             ]);
             if (seen.has(key)) return false;
             seen.add(key);
-            return (
-                Number.isFinite(p.seconds) &&
-                p.seconds > 0 &&
-                (!p.duration || p.duration - p.seconds > 15)
-            );
+            if (!Number.isFinite(p.seconds) || p.seconds <= 0) return false;
+            // A started series stays on Home after its latest episode ends;
+            // the card then offers the next episode.
+            return !isFinished(p) || isSeriesEpisode(p);
         })
         .slice(0, limit)
         .map(({ progress }) => progress);

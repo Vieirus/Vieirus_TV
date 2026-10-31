@@ -1,4 +1,9 @@
-import { mediaTitle, type Media, type Progress } from '@iptvnator/tv/util';
+import {
+    isFinished,
+    mediaTitle,
+    type Media,
+    type Progress,
+} from '@iptvnator/tv/util';
 export function Hero({
     item,
     open,
@@ -61,7 +66,10 @@ export function Hero({
                                 data-focus="hero-resume"
                                 onClick={() => play(progress.item)}
                             >
-                                Continue watching ▷
+                                {progress.item.kind === 'episode' &&
+                                isFinished(progress)
+                                    ? 'Next episode ▷'
+                                    : 'Continue watching ▷'}
                             </button>
                         ) : null}
                         <button

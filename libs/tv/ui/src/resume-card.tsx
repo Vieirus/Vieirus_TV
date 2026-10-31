@@ -1,4 +1,4 @@
-import { Media, Progress, mediaTitle } from '@iptvnator/tv/util';
+import { Media, Progress, isFinished, mediaTitle } from '@iptvnator/tv/util';
 import { TvIcon } from './icon';
 export function ResumeCard({
     progress,
@@ -11,6 +11,8 @@ export function ResumeCard({
 }) {
     const { item, seconds, duration } = progress;
     const knownDuration = Number.isFinite(duration) && duration > 0;
+    // Latest episode watched to the end: the card starts the next one.
+    const next = item.kind === 'episode' && isFinished(progress);
     return (
         <button
             class="resume-card"
@@ -44,7 +46,9 @@ export function ResumeCard({
                 ) : null}
                 <span class="resume-position">
                     {item.season ? `S${item.season} · E${item.episode} · ` : ''}
-                    {Math.floor(seconds / 60)} min watched
+                    {next
+                        ? 'Watched'
+                        : `${Math.floor(seconds / 60)} min watched`}
                 </span>
                 <progress
                     aria-label={`${mediaTitle(item)}: viewing progress`}
@@ -55,7 +59,9 @@ export function ResumeCard({
                             : undefined
                     }
                 />
-                <span class="resume-action">Resume →</span>
+                <span class="resume-action">
+                    {next ? 'Next episode →' : 'Resume →'}
+                </span>
             </span>
         </button>
     );

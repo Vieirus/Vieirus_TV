@@ -10,6 +10,7 @@ import {
 } from '@iptvnator/tv/ui';
 import { Media } from '@iptvnator/tv/util';
 import { TvModel } from './use-tv';
+import { useResume } from './use-next-episode';
 export function Home({
     tv,
     feature,
@@ -21,6 +22,7 @@ export function Home({
     openSeries: (item: Media) => Promise<void>;
     detailsBusy: boolean;
 }) {
+    const resume = useResume(tv);
     const items = tv.home;
     const sourceId = tv.data.activeId;
     const history = feature.history;
@@ -40,7 +42,7 @@ export function Home({
             <Hero
                 item={feature.item}
                 progress={feature.progress}
-                play={tv.play}
+                play={(item) => void resume(item)}
                 index={feature.index}
                 count={feature.count}
                 select={feature.select}
@@ -60,7 +62,7 @@ export function Home({
                             <ResumeCard
                                 key={p.item.id}
                                 progress={p}
-                                play={tv.play}
+                                play={(item) => void resume(item)}
                                 poster={storedMediaPoster(
                                     p.item,
                                     tv.data.sources.find(

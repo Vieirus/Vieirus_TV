@@ -4,7 +4,8 @@ import { useHomeFeature } from './use-home-feature';
 import { PageHeader } from './page-header';
 import { Favorites } from './favorites';
 import { usePlayerControls } from './player-controls';
-import { seekKeys, TrackButtons } from './player-tracks';
+import { TrackButtons } from './player-tracks';
+import { useScrub } from './use-scrub';
 import { usePreviewPosition } from './use-preview-position';
 import { useNextEpisode } from './use-next-episode';
 import { StartupSplash, useStartupSplash } from './startup-splash';
@@ -75,6 +76,8 @@ export function TvApp() {
     };
     const current = tv.playing;
     const element = video.current;
+    const scrub = useScrub(tv.player.current);
+    const position = scrub.target ?? element?.currentTime ?? 0;
     const controlsVisible = usePlayerControls(
         tv.fullscreen,
         !!overlay.panel || (element?.paused ?? true)
@@ -311,7 +314,7 @@ export function TvApp() {
                                             +10 sec
                                         </button>
                                         <span>
-                                            {time(element?.currentTime ?? 0)} /{' '}
+                                            {time(position)} /{' '}
                                             {time(element?.duration ?? 0)}
                                         </span>
                                     </>
@@ -327,11 +330,14 @@ export function TvApp() {
                             </div>
                             {current?.kind !== 'live' ? (
                                 <label class="seek">
-                                    Playback position · ← → : 10 s
+                                    Playback position · ← → : 10 s · hold to
+                                    move faster
                                     <input
                                         aria-label="Playback position"
                                         data-focus="player-seek"
-                                        onKeyDown={seekKeys(tv.player.current)}
+                                        onKeyDown={scrub.keyDown}
+                                        onKeyUp={scrub.keyUp}
+                                        onBlur={scrub.blur}
                                         type="range"
                                         min="0"
                                         max={
@@ -339,7 +345,7 @@ export function TvApp() {
                                                 ? element!.duration
                                                 : 0
                                         }
-                                        value={element?.currentTime ?? 0}
+                                        value={position}
                                         onInput={(e) => {
                                             tv.player.current?.seekTo(
                                                 Number(e.currentTarget.value)

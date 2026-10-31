@@ -153,15 +153,23 @@ test('one latest episode per series; completed latest episode cannot revive an o
         continueWatching(data).map((p) => p.item.id),
         ['other', 'e3']
     );
+    // A finished latest episode keeps its series on Home (card offers the
+    // next episode) and still never revives an older unfinished episode.
     episodes[2].seconds = 3590;
     assert.deepEqual(
         continueWatching(data).map((p) => p.item.id),
-        ['other']
+        ['other', 'e3']
     );
     delete episodes[0].item.parentId;
     assert.deepEqual(
         continueWatching(data).map((p) => p.item.id),
-        ['other', 'e1']
+        ['other', 'e3', 'e1']
+    );
+    // A finished episode without a known series behaves like a film.
+    episodes[0].seconds = 3590;
+    assert.deepEqual(
+        continueWatching(data).map((p) => p.item.id),
+        ['other', 'e3']
     );
 });
 

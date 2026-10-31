@@ -242,7 +242,7 @@ export * from './settings-draft';
 
 export * from './catalog-sort';
 export * from './catalog-query';
-export { continueWatching } from './continue-watching';
+export { continueWatching, isFinished } from './continue-watching';
 export * from './series-context';
 export * from './programme-guide';
 
