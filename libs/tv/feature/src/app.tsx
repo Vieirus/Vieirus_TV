@@ -340,7 +340,6 @@ export function TvApp() {
                                         aria-label="Playback position"
                                         data-focus="player-seek"
                                         onKeyDown={scrub.keyDown}
-                                        onKeyUp={scrub.keyUp}
                                         onBlur={scrub.blur}
                                         type="range"
                                         min="0"

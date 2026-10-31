@@ -2,20 +2,38 @@ import type { JSX } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { NativePlayer } from '@iptvnator/tv/data-access';
 
+/** Key presses closer than this belong to one hold (LG remotes repeat slowly). */
+const HOLD_GAP = 700;
+/** Quiet time after the last press before the video jumps and plays again. */
+const SETTLE = 700;
+
 interface Scrub {
     direction: number;
-    /** When the key went down (held time drives the speed). */
+    /** Start of the current hold (drives the speed). */
     started: number;
     last: number;
     value: number;
+    resume: boolean;
     timer?: ReturnType<typeof setTimeout>;
 }
 
 /**
- * Timeline keys. A short press moves 10 s; holding the key moves faster and
- * faster along the bar (about 20× real time at first, up to the whole title in
- * ~8 s). Only the shown position moves while the key is held: the video seeks
- * once, on release, so the TV does not reload the stream at every step.
+ * Seconds added by one key press, `held` seconds into a hold: 10 s during the
+ * first second, then doubling every second, up to 1/40 of the title.
+ */
+export function scrubStep(held: number, duration: number) {
+    const most = Number.isFinite(duration) ? Math.max(60, duration / 40) : 120;
+    return held < 1 ? 10 : Math.min(most, 10 * Math.pow(2, held - 1));
+}
+
+/**
+ * Timeline keys. Each press moves 10 s; keeping the key down moves faster and
+ * faster. Playback pauses while scrubbing and only the bar moves; the video
+ * jumps once, shortly after the last press, then plays again.
+ *
+ * Holds are recognised from the timing of presses only: LG remotes send a
+ * held key as separate presses (often with a release each time and without
+ * the "repeat" flag), so neither can be relied on.
  */
 export function useScrub(player?: NativePlayer) {
     const [target, setTarget] = useState<number>();
@@ -27,7 +45,9 @@ export function useScrub(player?: NativePlayer) {
         if (!s) return;
         clearTimeout(s.timer);
         state.current = undefined;
-        latest.current?.seekTo(s.value);
+        const p = latest.current;
+        p?.seekTo(s.value);
+        if (s.resume) p?.resume();
         setTarget(undefined);
     };
     useEffect(() => () => clearTimeout(state.current?.timer), []);
@@ -37,54 +57,43 @@ export function useScrub(player?: NativePlayer) {
         if (!left && !right) return;
         event.preventDefault();
         event.stopPropagation();
-        const video = latest.current?.video;
-        if (!video) return;
+        const p = latest.current;
+        const video = p?.video;
+        if (!p || !video) return;
         const direction = right ? 1 : -1;
         const duration =
             Number.isFinite(video.duration) && video.duration > 0
                 ? video.duration
                 : Infinity;
-        const clamp = (value: number) =>
-            Math.max(0, Math.min(duration - 1, value));
         const now = Date.now();
         let s = state.current;
-        if (!event.repeat || !s || s.direction !== direction) {
-            // A new press: 10 s from the shown position (presses add up).
-            clearTimeout(s?.timer);
+        if (!s) {
+            const resume = !video.paused;
+            if (resume) p.pause();
             s = {
                 direction,
                 started: now,
                 last: now,
-                value: clamp(
-                    (s?.value ??
-                        latest.current?.position ??
-                        video.currentTime) +
-                        direction * 10
-                ),
+                value: p.position,
+                resume,
             };
         } else {
-            const held = (now - s.started) / 1000;
-            const step = Math.min(0.25, (now - s.last) / 1000);
-            const fastest = Number.isFinite(duration)
-                ? Math.max(120, duration / 8)
-                : 600;
-            const speed =
-                held < 0.4 ? 0 : Math.min(fastest, 20 * Math.pow(2, held));
-            s = {
-                ...s,
-                last: now,
-                value: clamp(s.value + direction * speed * step),
-            };
+            clearTimeout(s.timer);
+            if (s.direction !== direction || now - s.last > HOLD_GAP)
+                s = { ...s, direction, started: now };
         }
-        // Safety net in case the TV never sends the key release.
-        s.timer = setTimeout(commit, 800);
+        const held = (now - s.started) / 1000;
+        const value = Math.max(
+            0,
+            Math.min(
+                duration - 1,
+                s.value + direction * scrubStep(held, duration)
+            )
+        );
+        s = { ...s, last: now, value };
+        s.timer = setTimeout(commit, SETTLE);
         state.current = s;
-        setTarget(s.value);
+        setTarget(value);
     };
-    const keyUp: JSX.KeyboardEventHandler<HTMLInputElement> = (event) => {
-        const left = event.key === 'ArrowLeft' || event.keyCode === 37;
-        const right = event.key === 'ArrowRight' || event.keyCode === 39;
-        if (left || right) commit();
-    };
-    return { target, keyDown, keyUp, blur: commit };
+    return { target, keyDown, blur: commit };
 }
