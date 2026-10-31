@@ -5,6 +5,7 @@ import { PageHeader } from './page-header';
 import { Favorites } from './favorites';
 import { usePlayerControls } from './player-controls';
 import { seekKeys, TrackButtons } from './player-tracks';
+import { usePreviewPosition } from './use-preview-position';
 import { useEffect, useRef } from 'preact/hooks';
 import { useTv } from './use-tv';
 import type { View } from './navigation';
@@ -46,30 +47,7 @@ export function TvApp() {
     useSeriesContext(tv);
     const browse = useLiveBrowse(tv);
     const overlay = useLiveOverlay(tv, browse);
-    useEffect(() => {
-        const position = () => {
-            const rect = document
-                .querySelector('.preview-placeholder')
-                ?.getBoundingClientRect();
-            const frame = document.querySelector<HTMLElement>(
-                '.native-player.preview'
-            );
-            if (rect && frame)
-                Object.assign(frame.style, {
-                    left: `${rect.left}px`,
-                    top: `${rect.top}px`,
-                    width: `${rect.width}px`,
-                    height: `${rect.height}px`,
-                });
-        };
-        position();
-        window.addEventListener('resize', position);
-        document.addEventListener('scroll', position, true);
-        return () => {
-            window.removeEventListener('resize', position);
-            document.removeEventListener('scroll', position, true);
-        };
-    });
+    usePreviewPosition(tv);
     const r = tv.route;
     const feature = useHomeFeature(tv);
     const cinematic = r.view === 'home' || r.view === 'detail';
@@ -122,7 +100,7 @@ export function TvApp() {
                     class="source-form storage-recovery"
                     aria-label="Saved TV data"
                 >
-                    <h1>IPTVnator TV</h1>
+                    <h1>VieirusTV</h1>
                     {tv.storageError ? (
                         <>
                             <p role="alert">{tv.storageError}</p>
@@ -140,7 +118,7 @@ export function TvApp() {
             ) : null}
             <aside hidden={tv.fullscreen || !tv.storageReady}>
                 <div class="wordmark">
-                    ip<span>tv</span>nator<small>TV EDITION</small>
+                    Vieirus<span>TV</span>
                 </div>
                 <nav aria-label="Main navigation">
                     {navigation.map(([view, label]) => (
@@ -291,7 +269,7 @@ export function TvApp() {
                             <span class="eyebrow">
                                 {current?.season
                                     ? `SEASON ${current.season} · EPISODE ${current.episode}`
-                                    : 'IPTVNATOR TV'}
+                                    : 'VIEIRUSTV'}
                             </span>
                             <h1>{current && mediaTitle(current)}</h1>
                             {current?.kind === 'episode' ? (

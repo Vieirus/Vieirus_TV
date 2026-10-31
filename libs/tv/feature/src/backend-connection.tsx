@@ -3,7 +3,7 @@ import { TvModel } from './use-tv';
 import { HomeServer } from './home-server';
 export function BackendConnection({
     tv,
-    label = 'IPTVnator backend URL',
+    label = 'Home server URL',
 }: {
     tv: TvModel;
     label?: string;
@@ -91,7 +91,7 @@ export function BackendConnection({
             ) : null}
             <p class="muted">
                 Use a backend you trust: source login details go to this
-                address. Local search checks standard IPTVnator ports; you can
+                address. Local search checks standard home server ports; you can
                 always enter another address.
             </p>
             <HomeServer tv={tv} />

@@ -15,7 +15,7 @@ export class UserDataStorage {
             request.onblocked = () =>
                 reject(
                     new Error(
-                        'Close other IPTVnator TV windows to upgrade local storage.'
+                        'Close other VieirusTV windows to upgrade local storage.'
                     )
                 );
         });

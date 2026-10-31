@@ -59,7 +59,7 @@ export async function identifyBackend(
         info.pairing !== true ||
         !['none', 'token'].includes(info.auth)
     )
-        throw new Error('This address is not a compatible IPTVnator backend.');
+        throw new Error('This address is not a compatible home server.');
     return { url, pairing: true, auth: info.auth };
 }
 export async function checkBackend(

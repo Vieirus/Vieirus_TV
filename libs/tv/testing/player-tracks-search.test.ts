@@ -66,7 +66,13 @@ test('audio tracks: listed only when there is a choice, cycled and remembered', 
     p.tracks.selectAudio(1);
     en.enabled = false;
     fr.enabled = true;
+    // A 'change' event alone must not re-apply the choice (webOS fires those
+    // while switching; re-applying could bounce between tracks).
+    audioTracks.dispatchEvent(new Event('change'));
+    await new Promise((r) => setTimeout(r, 350));
+    assert.equal(fr.enabled, true);
     audioTracks.dispatchEvent(new Event('addtrack'));
+    await new Promise((r) => setTimeout(r, 350));
     assert.equal(en.enabled, true);
     assert.equal(fr.enabled, false);
     p.dispose();
@@ -168,4 +174,19 @@ test('cached search matcher returns the same results as uncached normalization',
     const started = Date.now();
     assert.equal(many.filter(catalogTitleMatcher('numero 99')).length, 11);
     assert.ok(Date.now() - started < 200);
+});
+
+test('playback clock redraws at most once a second, never for live', async () => {
+    const { p, changes } = player([], []);
+    const video = p.video;
+    const DomEvent = video.ownerDocument.defaultView!.Event;
+    const before = changes();
+    p.item = { kind: 'live' } as never;
+    for (let i = 0; i < 5; i++) video.dispatchEvent(new DomEvent('timeupdate'));
+    assert.equal(changes(), before);
+    p.item = { kind: 'movie' } as never;
+    for (let i = 0; i < 5; i++) video.dispatchEvent(new DomEvent('timeupdate'));
+    assert.equal(changes(), before + 1);
+    p.item = undefined;
+    p.dispose();
 });

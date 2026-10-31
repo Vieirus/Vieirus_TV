@@ -75,18 +75,35 @@ export class PlayerTracks {
         private changed: () => void
     ) {
         ['addtrack', 'removetrack', 'change'].forEach((name) => {
-            this.audioList?.addEventListener?.(name, this.trackChanged);
-            this.textList?.addEventListener?.(name, this.trackChanged);
+            const listener =
+                name === 'addtrack' ? this.trackAdded : this.redraw;
+            this.audioList?.addEventListener?.(name, listener);
+            this.textList?.addEventListener?.(name, listener);
         });
     }
     dispose() {
+        clearTimeout(this.applyTimer);
         ['addtrack', 'removetrack', 'change'].forEach((name) => {
-            this.audioList?.removeEventListener?.(name, this.trackChanged);
-            this.textList?.removeEventListener?.(name, this.trackChanged);
+            const listener =
+                name === 'addtrack' ? this.trackAdded : this.redraw;
+            this.audioList?.removeEventListener?.(name, listener);
+            this.textList?.removeEventListener?.(name, listener);
         });
     }
-    private trackChanged = () => {
-        this.applyPreferences();
+    private applyTimer?: ReturnType<typeof setTimeout>;
+    private redraw = () => this.changed();
+    /*
+     * The saved choice is applied once, shortly after a new stream announces
+     * its tracks. It used to be re-applied on every 'change' event too; webOS
+     * fires those while it switches, which could bounce between tracks and
+     * freeze the player after a few switches.
+     */
+    private trackAdded = () => {
+        clearTimeout(this.applyTimer);
+        this.applyTimer = setTimeout(() => {
+            this.applyPreferences();
+            this.changed();
+        }, 300);
         this.changed();
     };
     private get audioList(): TrackListLike<AudioTrackLike> | undefined {

@@ -1,12 +1,15 @@
 :root {
     --tv-text-scale: 1.25;
-    --tv-bg: #0b100f;
-    --tv-surface: #171f1d;
-    --tv-text: #eef3ef;
-    --tv-muted: #9aa9a3;
-    --tv-accent: #8ee5c2;
-    --app-focus-ring-color: var(--tv-accent);
-    --tv-line: #2a3832;
+    --tv-bg: #0b0b10;
+    --tv-surface: #17181f;
+    --tv-text: #eeeef3;
+    --tv-muted: #9a9ba9;
+    --tv-accent: #0000ff;
+    /* #0000FF is too dark to read as text or a focus ring on the dark
+       background, so those use a lighter shade of the same blue. */
+    --tv-accent-text: #7a85ff;
+    --app-focus-ring-color: var(--tv-accent-text);
+    --tv-line: #2a2b38;
     color-scheme: dark;
     font-family: 'Trebuchet MS', sans-serif;
     font-size: calc(22px * var(--tv-text-scale));
@@ -40,7 +43,7 @@ button {
     min-height: 56px;
 }
 button:hover {
-    background: #26362e;
+    background: #262736;
 }
 button:focus,
 input:focus,
@@ -55,18 +58,18 @@ button:disabled {
     cursor: default;
 }
 button[aria-pressed='true'] {
-    border-color: var(--tv-accent);
+    border-color: var(--tv-accent-text);
 }
 button.primary {
     background: var(--tv-accent);
-    color: #0b2117;
+    color: #ffffff;
     font-weight: 700;
 }
 input,
 select {
-    background: #17211d;
+    background: #171821;
     color: var(--tv-text);
-    border: 1px solid #40554a;
+    border: 1px solid #404255;
     border-radius: 6px;
     min-height: 56px;
     padding: 12px 16px;
@@ -127,7 +130,7 @@ small {
     display: block;
 }
 .eyebrow {
-    color: var(--tv-accent);
+    color: var(--tv-accent-text);
     font-size: calc(16px * var(--tv-text-scale));
     letter-spacing: 3px;
     display: block;
@@ -144,7 +147,7 @@ aside {
     bottom: 0;
     width: 230px;
     padding: 52px 22px;
-    background: #0d1411;
+    background: #0d0e14;
     display: flex;
     flex-direction: column;
 }
@@ -154,7 +157,7 @@ aside {
     letter-spacing: -1.7px;
     padding: 0 14px;
     margin-bottom: 56px;
-    color: var(--tv-accent);
+    color: var(--tv-accent-text);
 }
 .wordmark span {
     color: var(--tv-text);
@@ -176,8 +179,8 @@ nav button {
     padding: 14px;
 }
 nav button[aria-current='page'] {
-    color: var(--tv-accent);
-    background: #1a2d24;
+    color: var(--tv-accent-text);
+    background: #1a1c2d;
 }
 .nav-icon {
     width: 38px;
@@ -189,7 +192,7 @@ nav button[aria-current='page'] {
     margin-top: auto;
     padding: 20px 14px 0;
     font-size: calc(12px * var(--tv-text-scale));
-    color: #74897e;
+    color: #747689;
     line-height: 1.9;
     letter-spacing: 3px;
 }
@@ -226,7 +229,7 @@ header select {
     max-width: 360px;
     flex-shrink: 0;
     font-size: calc(17px * var(--tv-text-scale));
-    background: rgba(11, 16, 15, 0.8);
+    background: rgba(11, 11, 16, 0.8);
 }
 .cinematic-page > * {
     position: relative;
@@ -240,7 +243,7 @@ header select {
     right: 0;
     height: 880px;
     pointer-events: none;
-    background: linear-gradient(135deg, #1c382d, var(--tv-bg) 80%);
+    background: linear-gradient(135deg, #1c1e38, var(--tv-bg) 80%);
 }
 .page-backdrop img,
 .backdrop-scrim {
@@ -259,14 +262,14 @@ header select {
         linear-gradient(
             0deg,
             var(--tv-bg) 0%,
-            rgba(11, 16, 15, 0.88) 12%,
-            rgba(11, 16, 15, 0) 64%
+            rgba(11, 11, 16, 0.88) 12%,
+            rgba(11, 11, 16, 0) 64%
         ),
         linear-gradient(
             90deg,
-            rgba(11, 16, 15, 0.96) 0%,
-            rgba(11, 16, 15, 0.78) 33%,
-            rgba(11, 16, 15, 0.18) 75%
+            rgba(11, 11, 16, 0.96) 0%,
+            rgba(11, 11, 16, 0.78) 33%,
+            rgba(11, 11, 16, 0.18) 75%
         );
 }
 .shelf .home-page > .page-backdrop {
@@ -304,14 +307,14 @@ header select {
 .hero p {
     max-width: 550px;
     font-size: calc(22px * var(--tv-text-scale));
-    color: #becbc3;
+    color: #bebfcb;
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
 .hero-position {
-    color: var(--tv-accent);
+    color: var(--tv-accent-text);
     font-size: calc(19px * var(--tv-text-scale));
 }
 .hero-position progress {
@@ -352,12 +355,12 @@ header select {
     position: absolute;
     right: 42px;
     bottom: 48px;
-    color: #8ba996;
+    color: #8b8da9;
     font-size: calc(27px * var(--tv-text-scale));
     letter-spacing: 2px;
 }
 .hero-number span {
-    color: #b9cbbf;
+    color: #b9bacb;
 }
 .hero-number small {
     font-size: calc(10px * var(--tv-text-scale));
@@ -403,7 +406,7 @@ header select {
     height: 0;
     padding-top: 150%;
     display: block;
-    background: linear-gradient(145deg, #263e31, #141e1a);
+    background: linear-gradient(145deg, #26283e, #14151e);
     position: relative;
     overflow: hidden;
     border-radius: 6px;
@@ -426,18 +429,18 @@ header select {
     font:
         26px Georgia,
         serif;
-    color: #b9cbbf;
+    color: #b9bacb;
 }
 .poster-art small {
     position: absolute;
     z-index: 2;
     bottom: 14px;
     left: 16px;
-    background: rgba(11, 16, 15, 0.9);
+    background: rgba(11, 11, 16, 0.9);
     padding: 3px 6px;
     font-size: calc(11px * var(--tv-text-scale));
     letter-spacing: 2px;
-    color: #cbd9d0;
+    color: #cbccd9;
 }
 .poster-card > strong {
     font-size: calc(20px * var(--tv-text-scale));
@@ -490,8 +493,8 @@ header select {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--tv-accent);
-    background: #263e31;
+    color: var(--tv-accent-text);
+    background: #26283e;
 }
 .resume-art > svg {
     width: 40px;
@@ -528,7 +531,7 @@ header select {
     color: var(--tv-muted);
 }
 .resume-action {
-    color: var(--tv-accent);
+    color: var(--tv-accent-text);
     margin-top: 10px;
 }
 .resume-card progress {
@@ -559,8 +562,8 @@ header select {
     font-size: calc(17px * var(--tv-text-scale));
 }
 .favorite-types button[aria-pressed='true'] {
-    background: #1a2d24;
-    color: var(--tv-accent);
+    background: #1a1c2d;
+    color: var(--tv-accent-text);
 }
 .station-grid {
     --columns: 3;
@@ -698,7 +701,7 @@ summary {
     font-size: calc(17px * var(--tv-text-scale));
 }
 .loading {
-    color: var(--tv-accent);
+    color: var(--tv-accent-text);
     padding: 12px 0 24px;
     font-size: calc(18px * var(--tv-text-scale));
 }
@@ -712,7 +715,7 @@ summary {
     min-width: 240px;
     width: 240px;
     height: 360px;
-    background: #1d3025;
+    background: #1d1f30;
     margin-right: 55px;
     display: flex;
     align-items: center;
@@ -727,7 +730,7 @@ summary {
     max-width: 880px;
 }
 .detail-hero p {
-    color: #becbc3;
+    color: #bebfcb;
     max-height: 180px;
     overflow: auto;
 }
@@ -791,7 +794,7 @@ summary {
     font-size: calc(16px * var(--tv-text-scale));
 }
 .episode-number {
-    color: var(--tv-accent);
+    color: var(--tv-accent-text);
     font:
         36px Georgia,
         serif;
@@ -838,7 +841,7 @@ main.live-page {
 }
 .channels::-webkit-scrollbar-thumb,
 .programme-list::-webkit-scrollbar-thumb {
-    background: #40554a;
+    background: #404255;
 }
 .channel-pane-header {
     flex-shrink: 0;
@@ -879,10 +882,10 @@ main.live-page {
 }
 .live-category > span {
     margin-left: 18px;
-    color: var(--tv-accent);
+    color: var(--tv-accent-text);
 }
 .live-category[aria-pressed='true'] {
-    background: #1c2a23;
+    background: #1c1d2a;
 }
 .channel {
     width: 100%;
@@ -894,11 +897,11 @@ main.live-page {
     min-height: 86px;
 }
 .channel[aria-pressed='true'] {
-    background: #1c2a23;
-    border-color: #52695c;
+    background: #1c1d2a;
+    border-color: #525469;
 }
 .channel.is-playing {
-    background: #234334;
+    background: #232643;
 }
 .channel-logo {
     width: 48px;
@@ -912,8 +915,8 @@ main.live-page {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #283e31;
-    color: var(--tv-accent);
+    background: #282a3e;
+    color: var(--tv-accent-text);
 }
 .channel-logo img {
     position: absolute;
@@ -922,7 +925,7 @@ main.live-page {
     width: 100%;
     height: 100%;
     object-fit: contain;
-    background: #283e31;
+    background: #282a3e;
 }
 .channel-number {
     font-size: calc(14px * var(--tv-text-scale));
@@ -952,7 +955,7 @@ main.live-page {
     width: 100%;
     height: 0;
     padding-bottom: 56.25%;
-    background: #050806;
+    background: #050508;
     position: relative;
     border: 1px solid var(--tv-line);
     display: flex;
@@ -988,7 +991,7 @@ main.live-page {
     padding: 8px 16px;
     border-radius: 8px;
     font-size: calc(17px * var(--tv-text-scale));
-    background: rgba(23, 37, 30, 0.9);
+    background: rgba(23, 24, 37, 0.9);
 }
 .preview-open:hover {
     background: transparent;
@@ -999,7 +1002,7 @@ main.live-page {
 }
 .preview-open:focus > span {
     background: var(--tv-accent);
-    color: #06110d;
+    color: #ffffff;
 }
 .live-information .section-title h2 {
     font-size: calc(26px * var(--tv-text-scale));
@@ -1292,7 +1295,7 @@ main.live-page {
     margin-bottom: 18px;
 }
 .connection-status.connected {
-    color: var(--tv-accent);
+    color: var(--tv-accent-text);
 }
 .connection-dot {
     display: inline-block;
@@ -1375,7 +1378,7 @@ main.live-page {
 }
 .episode-copy .episode-number {
     font: inherit;
-    color: var(--tv-accent);
+    color: var(--tv-accent-text);
 }
 .episode-description {
     display: -webkit-box;
@@ -1517,6 +1520,62 @@ main.live-page {
  * flex `gap` (84). Lay the same boxes out with flexbox and margins, driven by the
  * same --columns / --*-gap variables the grid rules above use.
  */
+/* Audio & subtitles panel (opened from the player, playback paused). */
+.track-panel {
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.72);
+}
+.track-box {
+    width: 70%;
+    max-width: 1100px;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 40px 48px;
+    border-radius: 16px;
+    background: var(--tv-surface);
+    border: 1px solid var(--tv-line);
+}
+.track-box h2 {
+    margin: 0 0 6px;
+    font-size: calc(30px * var(--tv-text-scale));
+}
+.track-columns {
+    display: flex;
+    margin: 28px 0;
+}
+.track-columns > section {
+    flex: 1 1 0px;
+    min-width: 0;
+}
+.track-columns > section + section {
+    margin-left: 40px;
+}
+.track-columns h3 {
+    margin: 0 0 12px;
+    color: var(--tv-muted);
+    font-size: calc(18px * var(--tv-text-scale));
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+.track-option {
+    display: block;
+    width: 100%;
+    margin-bottom: 10px;
+}
+.track-option.is-chosen {
+    border-color: var(--tv-accent-text);
+}
+.track-box .actions > button + button {
+    margin-left: 16px;
+}
 @supports not (display: grid) {
     .poster-grid,
     .station-grid,

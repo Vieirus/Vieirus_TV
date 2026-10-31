@@ -24,6 +24,7 @@ export class NativePlayer {
     };
     private restoreTimer?: ReturnType<typeof setInterval>;
     private generation = 0;
+    private lastTick = 0;
     private handlers: Record<string, () => void>;
     readonly tracks: PlayerTracks;
     constructor(
@@ -68,6 +69,14 @@ export class NativePlayer {
             },
             timeupdate: () => {
                 this.tryRestore(true);
+                // timeupdate fires several times a second and every changed()
+                // redraws the whole app: on a webOS 4 TV that made menus slow
+                // whenever something played. Live shows no clock, so it needs
+                // no tick at all; films and episodes get one per second.
+                if (!this.item || this.item.kind === 'live') return;
+                const now = Date.now();
+                if (now - this.lastTick < 1000) return;
+                this.lastTick = now;
                 this.changed();
             },
         };

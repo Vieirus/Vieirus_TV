@@ -73,7 +73,7 @@ export function useBackend(
         setSearching(true);
         setConnected(false);
         setFound([]);
-        setStatus('Looking for IPTVnator in your local network…');
+        setStatus('Looking for the home server in your local network…');
         const matches: BackendInfo[] = [];
         await discoverBackends(job.signal, (info) => {
             if (
